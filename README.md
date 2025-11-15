@@ -1,4 +1,5 @@
 # UniFi Softphone
+
 ___
 
 Another little weekend project of mine.
@@ -9,4 +10,10 @@ Unfortunately, there are no paid memberships available in countries outside the 
 
 Contributions are welcome, maybe something nice will come of it :)
 
+#### See my other UniFi projects here:
+
+https://gamer08yt.github.io/UniFi-Talk-Repo/
+
 ![img.png](img.png)
+
+**This project is not affiliated with Ubiquiti in any way.**
