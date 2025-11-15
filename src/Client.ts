@@ -107,7 +107,7 @@ export class Client {
         console.log(`Dialing ${number}`);
 
         // Play Dial Sound.
-        this.playSound("/public/outgoing.mp3");
+        this.playSound("outgoing.mp3");
 
         // Set Call State to true.
         this.setCallUIState(true);
@@ -201,7 +201,7 @@ export class Client {
         // @ts-ignore
 
         // Play Incoming Sound.
-        this.playSound("/public/incoming.mp3");
+        this.playSound("incoming.mp3");
     }
 
     /**
