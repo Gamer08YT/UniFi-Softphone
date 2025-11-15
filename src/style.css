@@ -5,6 +5,11 @@
     --accent-2: #60a5fa;
     --danger: #e76065;
     --muted: rgba(255, 255, 255, 0.6);
+    --primary-text: #c0ecfa;
+    --secondary-text: #c7c9cc;
+    --link-text: #2777d5;
+    --primary-color: #131416;
+    --secondary-color: #232426;
 }
 
 .toast-header > img {
@@ -107,6 +112,12 @@ body {
     color: #07203a;
     border: none;
     box-shadow: 0 10px 30px rgba(96, 165, 250, 0.12), 0 2px 6px rgba(2, 6, 23, 0.6);
+}
+
+select, input {
+    color: var(--secondary-text) !important;
+    background-color: var(--secondary-color) !important;
+    border-color: var(--secondary-color) !important;
 }
 
 .call-actions > button {
