@@ -1,0 +1,180 @@
+:root {
+    --bg: #131416;
+    --card: #282b2f;
+    --accent: #6ee7b7;
+    --accent-2: #60a5fa;
+    --danger: #e76065;
+    --muted: rgba(255, 255, 255, 0.6);
+}
+
+.toast-header > img {
+    height: 1rem;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    background: radial-gradient(1200px 600px at 10% 10%, rgba(96, 165, 250, 0.06), transparent),
+    radial-gradient(900px 500px at 90% 90%, rgba(110, 231, 183, 0.04), transparent),
+    var(--bg);
+    color: #fff;
+    font-family: Inter, system-ui;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.phone-card {
+    width: 360px;
+    max-width: 95vw;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 22px;
+    padding: 18px;
+    box-shadow: 0 8px 30px rgba(2, 6, 23, 0.6);
+    backdrop-filter: blur(6px);
+}
+
+.screen {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    min-height: 64px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.number-display {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    display: flex;
+    gap: 8px
+}
+
+.digits-muted {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500
+}
+
+.dialpad {
+    display: grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap: 10px
+}
+
+.key {
+    aspect-ratio: 1/1;
+    border-radius: 5rem;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    transition: transform .12s ease, box-shadow .12s ease;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.01), rgba(255, 255, 255, 0.02));
+    box-shadow: 0 6px 18px rgba(2, 6, 23, 0.45), inset 0 -6px 18px rgba(255, 255, 255, 0.01);
+}
+
+.key:active {
+    transform: translateY(2px) scale(.995)
+}
+
+.digit {
+    font-size: 20px;
+    font-weight: 700
+}
+
+.letters {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px
+}
+
+.letters > img {
+    height: 1.2rem;
+}
+
+.key-accent {
+    background: linear-gradient(135deg, var(--accent), limegreen);
+    color: #07203a;
+    border: none;
+    box-shadow: 0 10px 30px rgba(96, 165, 250, 0.12), 0 2px 6px rgba(2, 6, 23, 0.6);
+}
+
+.call-actions > button {
+    height: 1.5rem;
+    width: 1.5rem;
+    font-size: 0.7rem;
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.calling {
+    background: var(--danger) !important;
+}
+
+.controls > button {
+    border-radius: 2rem;
+}
+
+.btn-round {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center
+}
+
+.hint {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 8px
+}
+
+.key:focus {
+    outline: 3px solid rgba(96, 165, 250, 0.18);
+    outline-offset: 3px
+}
+
+@media (max-width: 420px) {
+    .phone-card {
+        padding: 14px
+    }
+
+    .key {
+        border-radius: 12px
+    }
+}
+
+@keyframes shakeX {
+    0% {
+        transform: translateX(0)
+    }
+    25% {
+        transform: translateX(-6px)
+    }
+    75% {
+        transform: translateX(6px)
+    }
+    100% {
+        transform: translateX(0)
+    }
+}
+
+.shake {
+    animation: shakeX .28s ease
+}
