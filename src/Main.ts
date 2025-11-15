@@ -103,6 +103,8 @@ class Main {
             // @ts-ignore
             let secure = document.getElementById("wssMode").checked;
 
+            console.log(`Setup: ${username} / ${realm} / ${password} / ${secure}`);
+
             // Check credentials before saving.
             this.client.connect(realm, 5066, username, password).then(value => {
                 this.setValue("username", username)
