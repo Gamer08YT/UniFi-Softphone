@@ -31,6 +31,9 @@ class Main {
         // Prepare UI and VOIP Client.
         this.registerListeners();
 
+        // Handle TLS.
+        this.handleSecure();
+
         // Handle Setup.
         if (this.needSetup()) {
             this.setSetup(true);
@@ -248,6 +251,19 @@ class Main {
      */
     private getValue(key: string): string | null {
         return localStorage.getItem(key);
+    }
+
+    /**
+     * Handles secure protocol by checking if the current page is loaded over HTTPS.
+     * If the protocol is HTTPS, it removes the "hidden" attribute from the element
+     * with an ID of "tlsAlert".
+     *
+     * @return {void} No return value.
+     */
+    private handleSecure() {
+        if (window.location.protocol === "https:") {
+            document.getElementById("tlsAlert")?.removeAttribute("hidden");
+        }
     }
 }
 

@@ -151,7 +151,8 @@
         </div>
         <div class="mb-3">
             <label for="realmField" class="form-label">Realm</label>
-            <input type="text" required class="form-control" id="realmField" value="unifi" placeholder="UniFi Gateway Hostname">
+            <input type="text" required class="form-control" id="realmField" value="unifi"
+                   placeholder="UniFi Gateway Hostname">
         </div>
         <div class="mb-3">
             <label for="passwordField" class="form-label">Password</label>
@@ -160,6 +161,10 @@
         </div>
         <div class="alert alert-danger" hidden="hidden" id="connectionFailedAlert" role="alert">
             Connection to UniFi Talk failed.
+        </div>
+        <div class="alert alert-warning" hidden="hidden" id="tlsAlert" role="alert">
+            The softphone can only be used on pages with an HTTPS certificate if FreeSwitch has been configured with a
+            WSS server; otherwise, the client can also be run locally.
         </div>
         <div class="col-12">
             <button id="saveConfig" type="submit" class="btn btn-primary">Save</button>
