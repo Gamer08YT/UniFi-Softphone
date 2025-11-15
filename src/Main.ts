@@ -14,6 +14,7 @@ class Main {
     private callBtn = document.getElementById('call') as HTMLElement;
     private declineIncoming = document.getElementById('decline') as HTMLElement;
     private acceptIncoming = document.getElementById('accept') as HTMLElement;
+    private setupSave = document.getElementById('saveConfig') as HTMLElement;
 
     private number: string = '';
     private deleteInterval: number | null = null;
@@ -29,17 +30,30 @@ class Main {
 
         // Prepare UI and VOIP Client.
         this.registerListeners();
-        this.registerClient();
+
+        // Handle Setup.
+        if (this.needSetup()) {
+            this.setSetup(true);
+        } else {
+            this.setSetup(false);
+            this.registerClient();
+        }
     }
 
     /**
      * Registers the client by establishing a connection with the specified server.
      *
      **/
-    private registerClient() {
-        this.client.connect("192.168.1.1", 5066, "0009", "NGEKI/7HtCgu").then(r => console.log(r));
+    private async registerClient() {
+        await this.client.connect(this.getValue("realm"), 5066, this.getValue("username"), this.getValue("password")).then(r => console.log(r));
     }
 
+    /**
+     * Renders the current state of the component by updating the text content
+     * of appropriate elements based on the value of the `number` property.
+     *
+     * @return {void} No return value.
+     */
     private render(): void {
         this.digitsEl.textContent = this.number || '\u00A0';
         this.carrierEl.textContent = this.number ? '' : 'No number';
@@ -72,6 +86,38 @@ class Main {
      * @return {void} No return value.
      */
     private registerListeners() {
+        // Add Setup Listener.
+        this.setupSave.addEventListener('click', () => {
+            // @ts-ignore
+            let username = document.getElementById("usernameField").value;
+
+            // @ts-ignore
+            let realm = document.getElementById("realmField").value;
+
+            // @ts-ignore
+            let password = document.getElementById("passwordField").value;
+
+            // Check credentials before saving.
+            this.client.connect(realm, 5066, username, password).then(value => {
+                // @ts-ignore
+                this.setValue("username", username)
+
+                // @ts-ignore
+                this.setValue("realm", realm)
+
+                // @ts-ignore
+                this.setValue("password", password)
+
+                this.setSetup(false);
+            }).catch(reason => {
+                document.getElementById("connectionFailedAlert")?.removeAttribute("hidden");
+
+                console.error(`Failed to connect to server: ${reason}`);
+            })
+
+
+        });
+
         this.keys.forEach(k => {
             const digit = k.getAttribute('data-digit');
             k.addEventListener('click', () => {
@@ -149,6 +195,59 @@ class Main {
             }
         });
 
+    }
+
+    /**
+     * Checks if the necessary setup values are present in localStorage.
+     * Determines whether the "username", "password", and "realm" keys exist in localStorage and contain non-null values.
+     *
+     * @return {boolean} Returns true if all required setup values ("username", "password", "realm") are present and not null in localStorage, otherwise false.
+     */
+    private needSetup() {
+        return (localStorage.getItem("username") == null || localStorage.getItem("password") == null || localStorage.getItem("realm") == null);
+    }
+
+    /**
+     * Toggles the visibility of elements with IDs "setup" and "phone"
+     * based on the provided state value.
+     *
+     * @param {boolean} state - A boolean value to determine whether to show or hide the elements.
+     *                          If true, the "setup" element is made visible and the "phone" element is hidden.
+     *                         */
+    private setSetup(state: boolean) {
+        if (state)
+            document.getElementById("config")?.removeAttribute("hidden");
+        else
+            document.getElementById("config")?.setAttribute("hidden", "hidden");
+
+        if (state)
+            document.getElementById("phone")?.setAttribute("hidden", "hidden");
+        else
+            document.getElementById("phone")?.removeAttribute("hidden");
+
+        console.log(`Setup: ${state}`);
+    }
+
+    /**
+     * Sets a key-value pair in the local storage and logs it to the console.
+     *
+     * @param {string} key - The key to set in the local storage.
+     * @param {any} value - The value to associate with the specified key in the local storage.
+     */
+    private setValue(key: string, value: any) {
+        console.log(`Set Value: ${key} = ${value}`);
+
+        localStorage.setItem(key, value);
+    }
+
+    /**
+     * Retrieves a value from local storage associated with the provided key.
+     *
+     * @param {string} key - The key whose associated value needs to be retrieved.
+     * @return {string | null} The value associated with the key, or null if the key does not exist.
+     */
+    private getValue(key: string): string | null {
+        return localStorage.getItem(key);
     }
 }
 

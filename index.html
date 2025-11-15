@@ -50,8 +50,11 @@
         <div class="toast-body d-flex align-items-center justify-content-between">
             <span id="incoming-name"> is calling.</span>
             <div class="call-actions d-flex align-items-center">
-                <button id="decline" class="btn btn-sm btn-round key-accent shadow me-1"><i class="bi bi-telephone-fill"></i></button>
-                <button id="accept" class="btn btn-sm btn-round btn-danger shadow"><i style="rotate: 135deg" class="bi bi-telephone-fill"></i></button>
+                <button id="decline" class="btn btn-sm btn-round key-accent shadow me-1"><i
+                        class="bi bi-telephone-fill"></i></button>
+                <button id="accept" class="btn btn-sm btn-round btn-danger shadow"><i style="rotate: 135deg"
+                                                                                      class="bi bi-telephone-fill"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -61,81 +64,106 @@
 
 <!-- START: Phone Card -->
 <div class="phone-card">
-    <div class="screen">
-        <div class="d-flex justify-content-between align-items-start">
-            <div>
-                <div class="number-display" id="display" aria-live="polite" aria-atomic="true">
-                    <span id="digits"> </span>
-                    <small class="digits-muted" id="carrier">No number</small>
+    <div id="phone">
+        <div class="screen">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="number-display" id="display" aria-live="polite" aria-atomic="true">
+                        <span id="digits"> </span>
+                        <small class="digits-muted" id="carrier">No number</small>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <small class="digits-muted">Dialpad</small>
                 </div>
             </div>
-            <div class="text-end">
-                <small class="digits-muted">Dialpad</small>
-            </div>
+        </div>
+
+        <div class="dialpad" role="application" aria-label="Phone dialpad">
+            <button class="key" data-digit="1">
+                <div class="digit">1</div>
+                <div class="letters"><img src="voicemail.svg"></div>
+            </button>
+            <button class="key" data-digit="2">
+                <div class="digit">2</div>
+                <div class="letters">ABC</div>
+            </button>
+            <button class="key" data-digit="3">
+                <div class="digit">3</div>
+                <div class="letters">DEF</div>
+            </button>
+
+            <button class="key" data-digit="4">
+                <div class="digit">4</div>
+                <div class="letters">GHI</div>
+            </button>
+            <button class="key" data-digit="5">
+                <div class="digit">5</div>
+                <div class="letters">JKL</div>
+            </button>
+            <button class="key" data-digit="6">
+                <div class="digit">6</div>
+                <div class="letters">MNO</div>
+            </button>
+
+            <button class="key" data-digit="7">
+                <div class="digit">7</div>
+                <div class="letters">PQRS</div>
+            </button>
+            <button class="key" data-digit="8">
+                <div class="digit">8</div>
+                <div class="letters">TUV</div>
+            </button>
+            <button class="key" data-digit="9">
+                <div class="digit">9</div>
+                <div class="letters">WXYZ</div>
+            </button>
+
+            <button class="key" data-digit="*">
+                <div class="digit">*</div>
+                <div class="letters">&nbsp;</div>
+            </button>
+            <button class="key" data-digit="0">
+                <div class="digit">0</div>
+                <div class="letters">+</div>
+            </button>
+            <button class="key" data-digit="#">
+                <div class="digit">#</div>
+                <div class="letters">&nbsp;</div>
+            </button>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center controls">
+            <button id="backspace" class="btn btn-dark btn-round"><i class="bi bi-backspace"></i></button>
+            <button id="call" class="btn btn-lg btn-round key-accent shadow"><i class="bi bi-telephone-fill"></i>
+            </button>
+            <button id="clear" class="btn btn-outline-light btn-round"><i class="bi bi-x-lg"></i></button>
+        </div>
+
+        <div class="hint">Tap numbers or use your keyboard. Long‑press backspace to delete continuously.</div>
+    </div>
+    <div id="config" hidden="">
+        <span>To use this application, you need to create an Third-Party Device under the Phones Section.</span>
+        <div class="mb-3">
+            <label for="usernameField" class="form-label">Username</label>
+            <input type="text" class="form-control" id="usernameField" placeholder="Third-Party Device Username">
+        </div>
+        <div class="mb-3">
+            <label for="realmField" class="form-label">Realm</label>
+            <input type="text" required class="form-control" id="realmField" value="unifi" placeholder="UniFi Gateway Hostname">
+        </div>
+        <div class="mb-3">
+            <label for="passwordField" class="form-label">Password</label>
+            <input type="password" required class="form-control" id="passwordField"
+                   placeholder="Third-Party Device Password">
+        </div>
+        <div class="alert alert-danger" hidden="hidden" id="connectionFailedAlert" role="alert">
+            Connection to UniFi Talk failed.
+        </div>
+        <div class="col-12">
+            <button id="saveConfig" type="submit" class="btn btn-primary">Save</button>
         </div>
     </div>
-
-    <div class="dialpad" role="application" aria-label="Phone dialpad">
-        <button class="key" data-digit="1">
-            <div class="digit">1</div>
-            <div class="letters"><img src="voicemail.svg"></div>
-        </button>
-        <button class="key" data-digit="2">
-            <div class="digit">2</div>
-            <div class="letters">ABC</div>
-        </button>
-        <button class="key" data-digit="3">
-            <div class="digit">3</div>
-            <div class="letters">DEF</div>
-        </button>
-
-        <button class="key" data-digit="4">
-            <div class="digit">4</div>
-            <div class="letters">GHI</div>
-        </button>
-        <button class="key" data-digit="5">
-            <div class="digit">5</div>
-            <div class="letters">JKL</div>
-        </button>
-        <button class="key" data-digit="6">
-            <div class="digit">6</div>
-            <div class="letters">MNO</div>
-        </button>
-
-        <button class="key" data-digit="7">
-            <div class="digit">7</div>
-            <div class="letters">PQRS</div>
-        </button>
-        <button class="key" data-digit="8">
-            <div class="digit">8</div>
-            <div class="letters">TUV</div>
-        </button>
-        <button class="key" data-digit="9">
-            <div class="digit">9</div>
-            <div class="letters">WXYZ</div>
-        </button>
-
-        <button class="key" data-digit="*">
-            <div class="digit">*</div>
-            <div class="letters">&nbsp;</div>
-        </button>
-        <button class="key" data-digit="0">
-            <div class="digit">0</div>
-            <div class="letters">+</div>
-        </button>
-        <button class="key" data-digit="#">
-            <div class="digit">#</div>
-            <div class="letters">&nbsp;</div>
-        </button>
-    </div>
-
-    <div class="d-flex justify-content-between align-items-center controls">
-        <button id="backspace" class="btn btn-dark btn-round"><i class="bi bi-backspace"></i></button>
-        <button id="call" class="btn btn-lg btn-round key-accent shadow"><i class="bi bi-telephone-fill"></i></button>
-        <button id="clear" class="btn btn-outline-light btn-round"><i class="bi bi-x-lg"></i></button>
-    </div>
-
-    <div class="hint">Tap numbers or use your keyboard. Long‑press backspace to delete continuously.</div>
 </div>
 <!-- END: Phone Card -->
 

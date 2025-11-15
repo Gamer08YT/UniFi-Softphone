@@ -24,7 +24,7 @@ export class Client {
      * @param {string} password - The password for authentication.
      * @return {void} No return value.
      */
-    public async connect(realm: string = "192.168.1.1", port = 5066, username: string, password: string) {
+    public async connect(realm: string | null, port = 5066, username: string | null, password: string | null) {
         console.log(`Connecting to FreeSwitch / UniFi Talk ${realm}...`);
 
         this.realm = realm;
