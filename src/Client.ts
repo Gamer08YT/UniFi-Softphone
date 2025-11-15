@@ -196,6 +196,7 @@ export class Client {
         console.log("Incoming Call!");
 
         this.incomingToast.show();
+        this.simpleUser?.
         //this.simpleUser?.answer();
         // @ts-ignore
 
