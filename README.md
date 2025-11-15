@@ -1,7 +1,5 @@
 # UniFi Softphone
 
-___
-
 Another little weekend project of mine.
 
 Since the Talk Softphone is currently only available for paid memberships, here is my free2use version.
