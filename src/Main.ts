@@ -100,16 +100,15 @@ class Main {
             // @ts-ignore
             let password = document.getElementById("passwordField").value;
 
+            // @ts-ignore
+            let secure = document.getElementById("wssMode").checked;
+
             // Check credentials before saving.
             this.client.connect(realm, 5066, username, password).then(value => {
-                // @ts-ignore
                 this.setValue("username", username)
-
-                // @ts-ignore
                 this.setValue("realm", realm)
-
-                // @ts-ignore
                 this.setValue("password", password)
+                this.setValue("wssMode", secure)
 
                 this.setSetup(false);
             }).catch(reason => {

@@ -73,14 +73,20 @@ export class Client {
     }
 
     /**
-     * Constructs a WebSocket API URL using the provided realm and port.
+     * Constructs a WebSocket API URL based on the provided realm and port.
      *
-     * @param {string} realm - The realm or server name used in the WebSocket URL.
-     * @param {number} port - The port number used in the WebSocket URL.
-     * @return {string} The constructed WebSocket API URL in the format "ws://realm:port".
+     * @param {string} realm - The realm or domain name for the WebSocket connection.
+     * @param {number} port - The port number to be used in the WebSocket connection.
+     * @return {string} - The constructed WebSocket API URL.
      */
     private getWSAPI(realm: string, port: number) {
-        return "ws://" + realm + ":" + port;
+        let protocol = "ws";
+
+        if (localStorage.getItem("wssMode") == "true") {
+            protocol +="s"
+        }
+
+        return protocol + "://" + realm + ":" + port;
     }
 
 
@@ -197,11 +203,11 @@ export class Client {
 
         this.incomingToast.show();
         this.simpleUser?.
-        //this.simpleUser?.answer();
-        // @ts-ignore
+            //this.simpleUser?.answer();
+            // @ts-ignore
 
-        // Play Incoming Sound.
-        this.playSound("incoming.mp3");
+            // Play Incoming Sound.
+            this.playSound("incoming.mp3");
     }
 
     /**

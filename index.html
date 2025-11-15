@@ -159,6 +159,11 @@
             <input type="password" required class="form-control" id="passwordField"
                    placeholder="Third-Party Device Password">
         </div>
+        <div class="form-check mb-3 form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="wssMode">
+            <label class="form-check-label" for="wssMode">Use Secure Websocket (wss://), must be configured in
+                FreeSwitch.</label>
+        </div>
         <div class="alert alert-danger" hidden="hidden" id="connectionFailedAlert" role="alert">
             Connection to UniFi Talk failed.
         </div>
