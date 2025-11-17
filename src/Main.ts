@@ -69,6 +69,10 @@ class Main {
      * @return {void} This method does not return a value.
      */
     private pressDigit(d: string): void {
+        if (this.client.isCalling()) {
+            this.client.sendDTMF(d);
+        }
+
         if (this.number.length >= 20) return;
         this.number += d;
         this.render();

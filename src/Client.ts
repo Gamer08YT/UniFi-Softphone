@@ -1,10 +1,13 @@
 import {SimpleUser, SimpleUserOptions} from 'sip.js/lib/platform/web';
 // @ts-ignore
 import {version} from "../package.json";
+import {SimpleSoftphone} from "./extended/SimpleSoftphone";
+import {i} from "vite/dist/node/chunks/moduleRunnerTransport";
+import {Invitation} from "sip.js/lib/api";
 
 export class Client {
     // Store User Instance.
-    private simpleUser: SimpleUser | undefined;
+    private simpleUser: SimpleSoftphone | undefined;
 
     // Store Realm Hostname.
     private realm: string | undefined;
@@ -43,13 +46,13 @@ export class Client {
             }
         };
 
-        // Construct a SimpleUser instance
-        this.simpleUser = new SimpleUser(this.getWSAPI(realm, port), options);
+        // Construct a SimpleSoftphone instance
+        this.simpleUser = new SimpleSoftphone(this.getWSAPI(realm, port), options);
 
         // Supply delegate to handle inbound calls (optional)
         this.simpleUser.delegate = {
-            onCallReceived: async () => {
-                this.handleIncoming();
+            onCallReceived: async (invite: Invitation) => {
+                this.handleIncoming(invite);
             },
             onCallAnswered: () => {
                 this.stopSound();
@@ -62,7 +65,8 @@ export class Client {
             },
             onServerDisconnect: () => {
                 this.setUIState(false)
-            }
+            },
+
         };
 
         // Connect to server
@@ -83,7 +87,7 @@ export class Client {
         let protocol = "ws";
 
         if (localStorage.getItem("wssMode") == "true") {
-            protocol +="s"
+            protocol += "s"
         }
 
         return protocol + "://" + realm + ":" + port;
@@ -198,9 +202,22 @@ export class Client {
         this.incomingToast.hide();
     }
 
-    private handleIncoming() {
+    /**
+     * Handles an incoming call by displaying the caller's details, showing an incoming toast,
+     * and playing an incoming call sound.
+     *
+     * @param {Invitation} invite - The invitation object containing call details, such as the remote identity.
+     * @return {void} This method does not return any value.
+     */
+    private handleIncoming(invite: Invitation) {
         console.log("Incoming Call!");
 
+        let displayNumber = invite.remoteIdentity.uri.user;
+        let displayName = invite.remoteIdentity.displayName;
+
+        // Set Caller Details.
+        this.setIncomingUI(displayNumber, displayName);
+3
         this.incomingToast.show();
         this.simpleUser?.
             //this.simpleUser?.answer();
@@ -294,5 +311,30 @@ export class Client {
      */
     private stopSound() {
         this.currentAudio?.pause();
+    }
+
+    /**
+     * Sends a Dual-Tone Multi-Frequency (DTMF) signal.
+     * This method transmits a DTMF tone using the associated user's signaling system.
+     *
+     * @*/
+    sendDTMF(digit: string) {
+        console.log(`Sending DTMF: ${digit}`);
+
+        this.simpleUser?.sendDTMF(digit);
+    }
+
+    /**
+     * Updates the UI with the incoming caller's display name and number.
+     *
+     * @param {string | undefined} displayNumber - The incoming caller's phone number. Can be undefined.
+     * @param {string | undefined} displayName - The incoming caller's display name. Can be undefined.
+     * @return {void} This method does not return any value.
+     */
+    private setIncomingUI(displayNumber: string | undefined, displayName: string | undefined) {
+        let text = `${(displayName !== undefined) ? displayName + ` (${displayNumber})` : displayNumber}`;
+
+        // @ts-ignore
+        document.getElementById('incoming-name').innerText = text;
     }
 }
