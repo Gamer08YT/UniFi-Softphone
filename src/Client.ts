@@ -12,7 +12,7 @@ export class Client {
     private simpleUser: SimpleSoftphone | undefined;
 
     // Store Realm Hostname.
-    private realm: string | undefined;
+    private realm: string = "unifi";
     private callState: boolean = false;
 
     // @ts-ignore
@@ -29,7 +29,7 @@ export class Client {
      * @param {string} password - The password for authentication.
      * @return {void} No return value.
      */
-    public async connect(realm: string | null, port = 5066, username: string | null, password: string | null): void {
+    public async connect(realm: string = "unifi", port = 5066, username: string, password: string): Promise<void> {
         console.log(`Connecting to FreeSwitch / UniFi Talk ${realm}...`);
 
         this.realm = realm;
@@ -260,7 +260,7 @@ export class Client {
      *
      * @return {void} Does not return any value.
      */
-    public async anwser(): void {
+    public async anwser(): Promise<void> {
         console.log(`Accepting incoming call.`);
 
         // Hide Incoming Toast.
@@ -277,7 +277,7 @@ export class Client {
      *
      * @return {void} Does not return any value.
      */
-    public async decline(): void {
+    public async decline(): Promise<void> {
         console.log(`Decline incoming call.`);
 
         // Hide Incoming Toast.
