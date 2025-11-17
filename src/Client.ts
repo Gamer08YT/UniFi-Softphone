@@ -1,10 +1,12 @@
-import {SimpleUser, SimpleUserOptions} from 'sip.js/lib/platform/web';
+import {SimpleUserOptions} from 'sip.js/lib/platform/web';
 // @ts-ignore
 import {version} from "../package.json";
 import {SimpleSoftphone} from "./extended/SimpleSoftphone";
-import {i} from "vite/dist/node/chunks/moduleRunnerTransport";
 import {Invitation} from "sip.js/lib/api";
 
+/**
+ * Represents a Client class for establishing communication with a specified realm and handling calls.
+ */
 export class Client {
     // Store User Instance.
     private simpleUser: SimpleSoftphone | undefined;
@@ -27,7 +29,7 @@ export class Client {
      * @param {string} password - The password for authentication.
      * @return {void} No return value.
      */
-    public async connect(realm: string | null, port = 5066, username: string | null, password: string | null) {
+    public async connect(realm: string | null, port = 5066, username: string | null, password: string | null): void {
         console.log(`Connecting to FreeSwitch / UniFi Talk ${realm}...`);
 
         this.realm = realm;
@@ -83,7 +85,7 @@ export class Client {
      * @param {number} port - The port number to be used in the WebSocket connection.
      * @return {string} - The constructed WebSocket API URL.
      */
-    private getWSAPI(realm: string, port: number) {
+    private getWSAPI(realm: string, port: number): string {
         let protocol = "ws";
 
         if (localStorage.getItem("wssMode") == "true") {
@@ -101,17 +103,17 @@ export class Client {
      * @param {string} username - The username part of the SIP address.
      * @return {string} The generated Address of Record (AOR) in the format `sip:username@realm`.
      */
-    private getAOR(realm: string, username: string) {
+    private getAOR(realm: string, username: string): string {
         return `sip:${username}@${realm}`;
     }
 
     /**
      * Initiates an outgoing call to the specified phone number.
      *
-     * @param {string} number - The phone number to call.
      * @return {Promise<void>} A promise that resolves once the call operation is initiated.
+     * @param dial
      */
-    public async call(dial: string) {
+    public async call(dial: string): Promise<void> {
         let number = this.getRealmNumber(dial);
 
         console.log(`Dialing ${number}`);
@@ -147,7 +149,7 @@ export class Client {
      * @param {string} dial - The dial number to be used in the SIP URI.
      * @return {string} The generated SIP URI string in the format `sip:{dial}@{realm}`.
      */
-    private getRealmNumber(dial: string) {
+    private getRealmNumber(dial: string): string {
         return `sip:${dial}@${this.realm}`;
     }
 
@@ -157,7 +159,7 @@ export class Client {
      * @param {boolean} state - A boolean value indicating whether the UI should reflect an ongoing call (true) or not (false).
      * @return {void} Does not return a value.
      */
-    private setCallUIState(state: boolean) {
+    private setCallUIState(state: boolean): void {
         console.log(`Set UI Call State: ${state}`);
 
         document.getElementById("call")?.classList.toggle("calling", state);
@@ -174,10 +176,18 @@ export class Client {
      *
      * @param {any} param - The parameter used to determine the new call state.
      * A non-null value will result in setting the call UI state*/
-    private setCallState(param: string | null = null) {
+    private setCallState(param: string | null = null): void {
         this.setCallUIState(param !== null);
 
         this.callState = (param !== null);
+
+        if (!param) {
+            // Stop Incoming Sound.
+            this.stopSound()
+
+            // Hide Incoming Toast if not connected.
+            this.incomingToast.hide();
+        }
     }
 
     /**
@@ -186,7 +196,7 @@ export class Client {
      * @param {boolean} state - A boolean value that determines the UI state. If true, certain UI components will be disabled; otherwise, they will be enabled.
      * @return {void} This method does not return any value.
      */
-    private setUIState(state: boolean) {
+    private setUIState(state: boolean): void {
         console.log(`Set UI State: ${state}`);
 
         // Disable Call Button if not connected.
@@ -198,8 +208,9 @@ export class Client {
         // Hide Connection Toast if not connected.
         document.getElementById("toast-connection")?.setAttribute("hidden", !state ? "" : "block")
 
-        // Hide Incoming Toast if not connected.
-        this.incomingToast.hide();
+        if (!state)
+            // Hide Incoming Toast if not connected.
+            this.incomingToast.hide();
     }
 
     /**
@@ -209,7 +220,7 @@ export class Client {
      * @param {Invitation} invite - The invitation object containing call details, such as the remote identity.
      * @return {void} This method does not return any value.
      */
-    private handleIncoming(invite: Invitation) {
+    private handleIncoming(invite: Invitation): void {
         console.log("Incoming Call!");
 
         let displayNumber = invite.remoteIdentity.uri.user;
@@ -217,14 +228,11 @@ export class Client {
 
         // Set Caller Details.
         this.setIncomingUI(displayNumber, displayName);
-3
-        this.incomingToast.show();
-        this.simpleUser?.
-            //this.simpleUser?.answer();
-            // @ts-ignore
 
-            // Play Incoming Sound.
-            this.playSound("incoming.mp3");
+        // Play Incoming Sound.
+        this.playSound("incoming.mp3");
+
+        this.incomingToast.show();
     }
 
     /**
@@ -232,7 +240,7 @@ export class Client {
      *
      * @return {boolean} Returns true if a call is ongoing, otherwise false.
      */
-    isCalling() {
+    isCalling(): boolean {
         return this.callState;
     }
 
@@ -242,7 +250,7 @@ export class Client {
      *
      * @return {void} Does not return a value.
      */
-    public hangup() {
+    public hangup(): void {
         this.simpleUser?.hangup();
     }
 
@@ -252,7 +260,7 @@ export class Client {
      *
      * @return {void} Does not return any value.
      */
-    public async anwser() {
+    public async anwser(): void {
         console.log(`Accepting incoming call.`);
 
         // Hide Incoming Toast.
@@ -269,7 +277,7 @@ export class Client {
      *
      * @return {void} Does not return any value.
      */
-    public async decline() {
+    public async decline(): void {
         console.log(`Decline incoming call.`);
 
         // Hide Incoming Toast.
@@ -287,7 +295,7 @@ export class Client {
      * @param {string} url - The URL of the audio file to play.
      * @return {Audio} The Audio object used to play the sound.
      */
-    private playSound(url: string) {
+    private playSound(url: string): HTMLAudioElement {
         console.log(`Playing Sound: ${url}`);
 
         if (this.currentAudio != null) {
@@ -309,8 +317,12 @@ export class Client {
      * Pauses the audio playback associated with the currentAudio property.
      * @return {void} No return value.
      */
-    private stopSound() {
+    private stopSound(): void {
         this.currentAudio?.pause();
+
+        // Destroy Audio Element.
+        // @ts-ignore
+        this.currentAudio = null;
     }
 
     /**
@@ -318,7 +330,7 @@ export class Client {
      * This method transmits a DTMF tone using the associated user's signaling system.
      *
      * @*/
-    sendDTMF(digit: string) {
+    private sendDTMF(digit: string): void {
         console.log(`Sending DTMF: ${digit}`);
 
         this.simpleUser?.sendDTMF(digit);
@@ -331,7 +343,7 @@ export class Client {
      * @param {string | undefined} displayName - The incoming caller's display name. Can be undefined.
      * @return {void} This method does not return any value.
      */
-    private setIncomingUI(displayNumber: string | undefined, displayName: string | undefined) {
+    private setIncomingUI(displayNumber: string | undefined, displayName: string | undefined): void {
         let text = `${(displayName !== undefined) ? displayName + ` (${displayNumber})` : displayNumber}`;
 
         // @ts-ignore
