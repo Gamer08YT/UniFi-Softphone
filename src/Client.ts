@@ -326,10 +326,12 @@ export class Client {
     }
 
     /**
-     * Sends a Dual-Tone Multi-Frequency (DTMF) signal.
-     * This method transmits a DTMF tone using the associated user's signaling system.
+     * Sends a Dual-Tone Multi-Frequency (DTMF) signal corresponding to the specified digit.
      *
-     * @*/
+     * @remarks This method currently only sends an SIP Frame, no Sound.
+     * @param {string} digit - The DTMF digit to be sent. This is typically a numeric or valid DTMF character.
+     * @return {void} This method does not return any value.
+     */
     private sendDTMF(digit: string): void {
         console.log(`Sending DTMF: ${digit}`);
 
