@@ -10,11 +10,24 @@ Contributions are welcome, maybe something nice will come of it :)
 
 ![img.png](img.png)
 
+## Current Implementation
+
+- Make a Call ✔️
+- Hangup Call ✔️
+- Accept Call ✔️
+- Reject Call ✔️
+- Unregister (Do not disturb) ❌
+- Caller Log ❌
+- Hold a Call ❌
+- Mailbox ❌
+
 ### HTTPS Issue:
 
-If you like to use the Softphone over HTTPS, you need to change the WebSocket Server from FreeSwitch in your UniFi Console to the ``wss`` Protocol, otherwise your Browser will reject a connection from any HTTPS Site to an WS Server.
+If you like to use the Softphone over HTTPS, you need to change the WebSocket Server from FreeSwitch in your UniFi
+Console to the ``wss`` Protocol, otherwise your Browser will reject a connection from any HTTPS Site to an WS Server.
 
-But you can use the Softphone over HTTP, since it is just a WebRTC Client and don't send any Traffic/Authorization Data to the Webserver wich is hosted on.
+But you can use the Softphone over HTTP, since it is just a WebRTC Client and don't send any Traffic/Authorization Data
+to the Webserver wich is hosted on.
 
 I created an example Website for this purpose: http://softphone.byte-store.de/
 
