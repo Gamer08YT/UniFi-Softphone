@@ -15,6 +15,7 @@ class Main {
     private declineIncoming = document.getElementById('decline') as HTMLElement;
     private acceptIncoming = document.getElementById('accept') as HTMLElement;
     private setupSave = document.getElementById('saveConfig') as HTMLElement;
+    private avatarContainer = document.getElementById('avatar-container') as HTMLElement;
 
     private number: string = '';
     private deleteInterval: number | null = null;
@@ -93,6 +94,11 @@ class Main {
      * @return {void} No return value.
      */
     private registerListeners() {
+        // Add Account Listener.
+        this.avatarContainer.addEventListener('click', () => {
+            this.setSetup(true);
+        });
+
         // Add Setup Listener.
         this.setupSave.addEventListener('click', () => {
             // @ts-ignore
