@@ -52,6 +52,9 @@ I used the [SIP.js](https://sipjs.com/guides/server-configuration/freeswitch/) l
 
 If you want to use it externally, you need to forward port 5060 and 5066 which is very unsecure.
 
+**Remind your credentials are stored in the Browser LocalStorage, to keep your data safe, local at your side and my
+project small 😂.**
+
 ### See my other UniFi projects here:
 
 https://gamer08yt.github.io/UniFi-Talk-Repo/
