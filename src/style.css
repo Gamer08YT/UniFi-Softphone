@@ -189,3 +189,15 @@ select, input {
 .shake {
     animation: shakeX .28s ease
 }
+
+.avatar-container {
+    background: var(--danger);
+    border-radius: 100%;
+    padding: 0.15rem;
+    height: 2.5rem;
+}
+
+.avatar-container > img {
+    background: var(--secondary-color);
+    height: 100%;
+}

@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="src/style.css" type="text/css">
 </head>
 <body data-bs-theme=dark class="d-flex flex-column min-vh-100">
-
 <!-- START: DOM Audio Element -->
 <audio hidden="hidden" id="remoteAudio" controls>
     <p>Your browser doesn't support HTML5 audio.</p>
@@ -18,7 +17,7 @@
 <!-- END: DOM Audio Element -->
 
 <!-- START: Toast Container -->
-<div id="toast-container" class="toast-container position-absolute top-0 end-0 p-3">
+<div id="toast-container" class="toast-container position-absolute">
     <!-- START: Call Toast -->
     <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
@@ -62,6 +61,38 @@
     <!-- STOP: Incoming Toast -->
 </div>
 <!-- END: Toast Container -->
+
+<!-- START: Navbar -->
+<nav class="navbar navbar-expand-lg w-100">
+    <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01"
+                aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+            <a class="navbar-brand" href="#"><b>SOFT</b>PHONE</a>
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <!--                <li class="nav-item">-->
+                <!--                    <a class="nav-link active" aria-current="page" href="#">Home</a>-->
+                <!--                </li>-->
+                <!--                <li class="nav-item">-->
+                <!--                    <a class="nav-link" href="#">Link</a>-->
+                <!--                </li>-->
+                <!--                <li class="nav-item">-->
+                <!--                    <a class="nav-link disabled">Disabled</a>-->
+                <!--                </li>-->
+            </ul>
+            <form class="d-flex" role="search">
+                <!--                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">-->
+                <!--                <button class="btn btn-outline-success" type="submit">Search</button>-->
+                <div class="avatar-container">
+                    <img src="./user.svg" class="avatar rounded-circle" alt="Circle Avatar">
+                </div>
+            </form>
+        </div>
+    </div>
+</nav>
+<!-- END: Navbar -->
 
 <main class="flex-grow-1">
     <div class="container">
