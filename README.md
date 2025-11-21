@@ -16,6 +16,7 @@ Contributions are welcome, maybe something nice will come of it :)
 - Hangup Call ✔️
 - Accept Call ✔️
 - Reject Call ✔️
+- Contacts ❌
 - Unregister (Do not disturb) ❌
 - Caller Log ❌
 - Hold a Call ❌
