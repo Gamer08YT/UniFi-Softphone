@@ -10,6 +10,17 @@ Contributions are welcome, maybe something nice will come of it :)
 
 ![img.png](img.png)
 
+### Account Setup:
+
+Create a new account on the UniFi Talk Server under [Devices](https://unifi/talk/phones/add-device).
+
+![img_1.png](img_1.png)
+
+**Please check if the SIP Server Hostname is the local IP of your UniFi Talk Server (theres an Bug, where Talk shows a
+Hostname of an WAN Interface in the current version).**
+
+If you use the DNS Server of your UniFi Controller, it should be fine to use ``unifi``.
+
 ### Function principle
 
 The Client is using WebRTC to connect to the internal UniFi Talk SIP Server (based
