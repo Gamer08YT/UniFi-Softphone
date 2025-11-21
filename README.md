@@ -55,6 +55,11 @@ If you want to use it externally, you need to forward port 5060 and 5066 which i
 **Remind your credentials are stored in the Browser LocalStorage, to keep your data safe, local at your side and my
 project small 😂.**
 
+
+### License
+
+Icons are based on ``Windows 11 Color`` by Icons8.com
+
 ### See my other UniFi projects here:
 
 https://gamer08yt.github.io/UniFi-Talk-Repo/
