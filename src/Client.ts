@@ -332,7 +332,7 @@ export class Client {
      * @param {string} digit - The DTMF digit to be sent. This is typically a numeric or valid DTMF character.
      * @return {void} This method does not return any value.
      */
-    private sendDTMF(digit: string): void {
+    public sendDTMF(digit: string): void {
         console.log(`Sending DTMF: ${digit}`);
 
         this.simpleUser?.sendDTMF(digit);
