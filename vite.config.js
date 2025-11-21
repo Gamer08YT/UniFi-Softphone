@@ -1,7 +1,4 @@
 export default {
-    // config options
-    base: "/UniFi-Softphone/",
-    build: {
-        assetsInclude: ['public/**']
-    }
+    // Only used for GitHub Pages Deployment.
+    base: "/UniFi-Softphone/"
 }
