@@ -1,14 +1,22 @@
 const {app, BrowserWindow} = require("electron");
 const path = require("path");
 
+/**
+ * Creates and initializes a new browser window with predefined dimensions, menu bar behavior,
+ * and web preferences. The window is configured to load a specific HTML file for its content.
+ *
+ * @return {BrowserWindow} The created BrowserWindow instance.
+ */
 function createWindow() {
     const win = new BrowserWindow({
-        width: 800,
-        height: 600,
+        width: 1100,
+        minWidth: 800,
+        minHeight: 950,
+        height: 1000,
         autoHideMenuBar: true,
         webPreferences: {
             preload: path.join(__dirname, "preload.js"),
-            devTools: true
+            devTools: false
         },
     });
 
