@@ -2,10 +2,17 @@ import {app, BrowserWindow} from 'electron';
 import * as path from "node:path";
 
 class Electron {
+    private windowInstance: BrowserWindow | null = null;
 
-
+    /**
+     * Constructor for initializing the main class instance. Sets up necessary functionality by
+     * registering listeners and configuring the taskbar.
+     *
+     * @return {void} This constructor does not return a value.
+     */
     constructor() {
         this.registerListeners();
+        this.registerTaskbar();
     }
 
     /**
@@ -15,11 +22,12 @@ class Electron {
      * @return {void} Does not return a value.
      */
     private createWindow(): void {
-        const win = new BrowserWindow({
+        this.windowInstance = new BrowserWindow({
             width: 1100,
             minWidth: 800,
             minHeight: 950,
             height: 1000,
+            icon: "phone.svg",
             autoHideMenuBar: true,
             webPreferences: {
                 preload: path.join(__dirname, "preload.js"),
@@ -27,7 +35,11 @@ class Electron {
             },
         });
 
-        win.loadFile( "index.html");
+        // Print Debug Message.
+        console.log("Window Created");
+
+        // Load Page from Asar Archive.
+        this.windowInstance.loadFile("dist/index.html");
     }
 
     /**
@@ -37,7 +49,13 @@ class Electron {
      * @return {void} Does not return a value.
      */
     private registerListeners(): void {
+        console.log("Registering Listeners");
+
         app.whenReady().then(() => {
+            // Change Temp Workdir.
+            //this.setWorkdir();
+
+            // Create Window.
             this.createWindow();
 
             app.on("activate", () => {
@@ -48,6 +66,51 @@ class Electron {
         app.on("window-all-closed", () => {
             if (process.platform !== "darwin") app.quit();
         });
+    }
+
+    /**
+     * Registers the taskbar with predefined user tasks for the application.
+     * This method sets up a user task for making a call using the specified arguments and icon.
+     *
+     * @return {void} Does not return any value.
+     */
+    private registerTaskbar(): void {
+        console.log("Registering Taskbar");
+        console.log(path.join(__dirname, "icon512_rounded.png"));
+
+        app.setUserTasks([
+            {
+                title: "Make a call",
+                program: process.execPath,
+                arguments: "makeCall",
+                iconPath: path.join(__dirname, "icon512_rounded.png"),
+                iconIndex: 0,
+                description: "Make a call using the Unofficial UniFi Softphone"
+            }
+        ]);
+    }
+
+    /**
+     * Sets the flash state of the current window instance.
+     *
+     * @param {boolean} state - A boolean value indicating whether to enable or disable the flash effect.
+     * @return {void} Does not return a value.
+     */
+    private setFlash(state: boolean) {
+        this.windowInstance?.flashFrame(state);
+    }
+
+    /**
+     * Sets the current working directory to the "dist" folder located relative to the directory of the script.
+     *
+     * @return {void} This method does not return a value.
+     */
+    private setWorkdir(): void {
+        const workDir = path.join(__dirname);
+
+        process.chdir(workDir);
+
+        console.log(`Working Directory: ${workDir}`);
     }
 }
 

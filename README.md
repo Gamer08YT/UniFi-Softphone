@@ -30,6 +30,8 @@ Console to the ``wss`` Protocol, otherwise your Browser will reject a connection
 But you can use the Softphone over HTTP, since it is just a WebRTC Client and don't send any Traffic/Authorization Data
 to the Webserver wich is hosted on.
 
+Keep in mind, that most Browsers will block, Microphone access if Website are hosted on HTTPS.
+
 [//]: # (I created an example Website for this purpose: http://softphone.byte-store.de/)
 
 ### Account Setup:

@@ -27,6 +27,7 @@
   "build": {
     "copyright": "Copyright © 2025 Jan Heil (www.byte-store.de)",
     "files": [
+      "dist/**/*"
     ],
     "directories": {
       "output": "packaged"
@@ -35,10 +36,11 @@
       "target": "appx"
     },
     "appx": {
+      "displayName": "Unofficial UniFi Talk Softphone",
       "identityName": "37017jaxnprivate.UnofficialUniFiTalkSoftphone",
       "publisher": "CN=555309DB-480B-42F6-B556-988555579009",
-      "publisherDisplayName": "Byte-Store.DE",
-      "applicationId": "Byte-Store.DE.UnofficialUniFiTalkSoftphone"
+      "publisherDisplayName": "BYTESTORE",
+      "applicationId": "BYTESTORE.UnofficialUniFiTalkSoftphone"
     }
   },
   "private": false
