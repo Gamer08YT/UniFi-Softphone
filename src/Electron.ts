@@ -27,7 +27,7 @@ class Electron {
             minWidth: 800,
             minHeight: 950,
             height: 1000,
-            icon: "phone.svg",
+            icon: "dist/phone.svg",
             autoHideMenuBar: true,
             webPreferences: {
                 preload: path.join(__dirname, "preload.js"),
@@ -76,7 +76,7 @@ class Electron {
      */
     private registerTaskbar(): void {
         console.log("Registering Taskbar");
-        console.log(path.join(__dirname, "icon512_rounded.png"));
+        console.log( "dist/icon512_rounded.png");
 
         app.setUserTasks([
             {
