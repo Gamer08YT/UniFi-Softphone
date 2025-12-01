@@ -27,7 +27,7 @@ class Electron {
             minWidth: 800,
             minHeight: 950,
             height: 1000,
-            icon: "dist/phone.svg",
+            icon: path.join(__dirname, "build/icon.png"),
             autoHideMenuBar: true,
             webPreferences: {
                 preload: path.join(__dirname, "preload.js"),
@@ -76,14 +76,13 @@ class Electron {
      */
     private registerTaskbar(): void {
         console.log("Registering Taskbar");
-        console.log( "dist/icon512_rounded.png");
 
         app.setUserTasks([
             {
                 title: "Make a call",
                 program: process.execPath,
                 arguments: "makeCall",
-                iconPath: path.join(__dirname, "icon512_rounded.png"),
+                iconPath: path.join(__dirname, "build/icon.png"),
                 iconIndex: 0,
                 description: "Make a call using the Unofficial UniFi Softphone"
             }

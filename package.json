@@ -27,13 +27,15 @@
   "build": {
     "copyright": "Copyright © 2025 Jan Heil (www.byte-store.de)",
     "files": [
-      "dist/**/*"
+      "dist/**/*",
+      "build/*"
     ],
     "directories": {
       "output": "packaged"
     },
     "win": {
-      "target": "appx"
+      "target": "appx",
+      "icon": "build/icon.ico"
     },
     "appx": {
       "displayName": "Unofficial UniFi Talk Softphone",
