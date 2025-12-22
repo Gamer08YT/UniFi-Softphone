@@ -29,7 +29,7 @@ export class Client {
      * @param {string} password - The password for authentication.
      * @return {void} No return value.
      */
-    public async connect(realm: string = "unifi", port = 5066, username: string, password: string): Promise<void> {
+    public async connect(realm: string = "unifi", port = 5066, username: string, password: string, secure: boolean): Promise<void> {
         console.log(`Connecting to FreeSwitch / UniFi Talk ${realm}...`);
 
         this.realm = realm;
@@ -48,8 +48,12 @@ export class Client {
             }
         };
 
+        const urlIO = this.getWSAPI(realm, port, secure);
+
+        console.log(`Connecting to ${urlIO}`);
+
         // Construct a SimpleSoftphone instance
-        this.simpleUser = new SimpleSoftphone(this.getWSAPI(realm, port), options);
+        this.simpleUser = new SimpleSoftphone(urlIO, options);
 
         // Supply delegate to handle inbound calls (optional)
         this.simpleUser.delegate = {
@@ -85,10 +89,10 @@ export class Client {
      * @param {number} port - The port number to be used in the WebSocket connection.
      * @return {string} - The constructed WebSocket API URL.
      */
-    private getWSAPI(realm: string, port: number): string {
+    private getWSAPI(realm: string, port: number, secure: boolean): string {
         let protocol = "ws";
 
-        if (localStorage.getItem("wssMode") == "true") {
+        if (secure) {
             protocol += "s"
         }
 

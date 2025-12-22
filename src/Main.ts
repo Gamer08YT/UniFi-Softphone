@@ -49,7 +49,7 @@ class Main {
      *
      **/
     private async registerClient() {
-        await this.client.connect(this.getValue("realm"), 5066, this.getValue("username"), this.getValue("password")).then(r => console.log(r));
+        await this.client.connect(this.getValue("realm"), this.getValue("port"), this.getValue("username"), this.getValue("password"), this.getValue("wssMode")).then(r => console.log(r));
     }
 
     /**
@@ -113,14 +113,27 @@ class Main {
             // @ts-ignore
             let secure = document.getElementById("wssMode").checked;
 
+            const split = realm.split(":");
+            let port = 5066;
+
+            // Check if realm contains port.
+            if (split.length > 1) {
+                console.log(`Realm contains port: ${split[1]}`);
+
+                port = parseInt(split[1]);
+                realm = split[0];
+            }
+
             console.log(`Setup: ${username} / ${realm} / ${password} / ${secure}`);
 
+
             // Check credentials before saving.
-            this.client.connect(realm, 5066, username, password).then(value => {
-                this.setValue("username", username)
-                this.setValue("realm", realm)
-                this.setValue("password", password)
-                this.setValue("wssMode", secure)
+            this.client.connect(realm, port, username, password, secure).then(value => {
+                this.setValue("username", username);
+                this.setValue("realm", realm);
+                this.setValue("password", password);
+                this.setValue("port", port);
+                this.setValue("wssMode", secure);
 
                 this.setSetup(false);
             }).catch(reason => {

@@ -1,7 +1,7 @@
 {
   "name": "UnofficialUniFiTalkSoftphone",
   "version": "1.0.0",
-  "description": "",
+  "description": "Unofficial UniFi Talk Softphone.",
   "main": "dist/Electron.js",
   "author": {
     "name": "Jan Heil"
@@ -11,7 +11,8 @@
     "start": "electron .",
     "dev": "vite",
     "build": "vite build",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "make": "electron-forge make"
   },
   "dependencies": {
     "flatted": "^3.3.3",
@@ -19,9 +20,13 @@
     "sweetalert2": "^11.26.3"
   },
   "devDependencies": {
+    "@electron-forge/cli": "^7.10.2",
+    "@electron-forge/maker-msix": "^7.10.2",
+    "@electron-forge/publisher-github": "^7.10.2",
     "electron": "^39.2.3",
-    "typescript": "^5.9.3",
     "electron-builder": "^26.0.12",
+    "electron-windows-msix": "^2.0.4",
+    "typescript": "^5.9.3",
     "vite": "^7.2.2"
   },
   "build": {
@@ -32,17 +37,6 @@
     ],
     "directories": {
       "output": "packaged"
-    },
-    "win": {
-      "target": "appx",
-      "icon": "build/icon.ico"
-    },
-    "appx": {
-      "displayName": "Unofficial UniFi Talk Softphone",
-      "identityName": "37017jaxnprivate.UnofficialUniFiTalkSoftphone",
-      "publisher": "CN=555309DB-480B-42F6-B556-988555579009",
-      "publisherDisplayName": "BYTESTORE",
-      "applicationId": "BYTESTORE.UnofficialUniFiTalkSoftphone"
     }
   },
   "private": false

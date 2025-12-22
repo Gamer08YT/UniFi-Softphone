@@ -27,7 +27,7 @@ class Electron {
             minWidth: 800,
             minHeight: 950,
             height: 1000,
-            icon: path.join(__dirname, "build/icon.png"),
+            icon: path.join(__dirname, "../build/icon.png"),
             autoHideMenuBar: true,
             webPreferences: {
                 preload: path.join(__dirname, "preload.js"),
@@ -82,7 +82,7 @@ class Electron {
                 title: "Make a call",
                 program: process.execPath,
                 arguments: "makeCall",
-                iconPath: path.join(__dirname, "build/icon.png"),
+                iconPath: path.join(__dirname, "../build/icon.png"),
                 iconIndex: 0,
                 description: "Make a call using the Unofficial UniFi Softphone"
             }
