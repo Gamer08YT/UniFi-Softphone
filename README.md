@@ -28,7 +28,8 @@ Contributions are welcome, maybe something nice will come of it :)
 
 #### Linux:
 
-For Linux please download the latest Release from the [Releases](https://github.com/Gamer08YT/UniFi-Softphone/releases) page.
+For Linux please download the latest Release from the [Releases](https://github.com/Gamer08YT/UniFi-Softphone/releases)
+page.
 
 Run sudo `apt install ./unofficialunifitalksoftphone_1.0.0_amd64.deb`
 
@@ -85,10 +86,11 @@ If you want to use it externally, you need to forward port 5060 and 5066 which i
 **Remind your credentials are stored in the Browser LocalStorage, to keep your data safe, local at your side and my
 project small 😂.**
 
-
 ### License
 
-Icons are based on ``Windows 11 Color`` by Icons8.com
+- Icons are based on ``Windows 11 Color`` by Icons8.com
+- VOIP Client is base on ``SIP.js``
+- Stylesheet is based on ``Bootstrap 5``
 
 ### See my other UniFi projects here:
 
