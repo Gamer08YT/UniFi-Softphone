@@ -1,5 +1,7 @@
 # UniFi Softphone
 
+[![Store link](https://img.shields.io/badge/Microsoft%20Store-Download-orange.svg?style=flat-square)](https://apps.microsoft.com/detail/9mstdqnvn4hp)
+
 Another little weekend project of mine.
 
 Since the Talk Softphone is currently only available for paid memberships, here is my free2use version.
@@ -33,6 +35,8 @@ to the Webserver wich is hosted on.
 Keep in mind, that most Browsers will block, Microphone access if Website are hosted on HTTPS.
 
 [//]: # (I created an example Website for this purpose: http://softphone.byte-store.de/)
+
+<b>The easiest option is to use the Windows Store Version or Local in your Browser.</b>
 
 ### Account Setup:
 
