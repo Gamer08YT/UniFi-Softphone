@@ -242,6 +242,16 @@ class Main {
      *                          If true, the "setup" element is made visible and the "phone" element is hidden.
      *                         */
     private setSetup(state: boolean) {
+        // Update Setup Interface.
+        if (state) {
+            document.getElementById("usernameField")?.setAttribute("value", this.getValue("username") || "");
+            document.getElementById("passwordField")?.setAttribute("value", this.getValue("password") || "");
+            document.getElementById("realmField")?.setAttribute("value", this.getValue("realm") || "");
+
+            // @ts-ignore
+            document.getElementById('wssMode')?.checked = this.getValue("wssMode") === "true";
+        }
+
         if (state)
             document.getElementById("config")?.removeAttribute("hidden");
         else
