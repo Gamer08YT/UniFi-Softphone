@@ -19,6 +19,9 @@ class Main {
 
     private number: string = '';
     private deleteInterval: number | null = null;
+    private timer: number | undefined;
+
+    private LONG_CLICK_DURATION = 2000;
 
     /**
      * Constructor for initializing the Unofficial UniFi Softphone application.
@@ -93,7 +96,7 @@ class Main {
      *
      * @return {void} No return value.
      */
-    private registerListeners() {
+    private registerListeners(): void {
         // Add Account Listener.
         this.avatarContainer.addEventListener('click', () => {
             this.setSetup(true);
@@ -157,6 +160,32 @@ class Main {
                     k.click();
                 }
             });
+
+            if (digit == "1") {
+                // Add Long Press Listener (Voicemail).
+                k.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    this.startPress();
+                });
+
+                k.addEventListener('mouseup', () => {
+                    this.cancelPress();
+                });
+
+                k.addEventListener('mouseleave', () => {
+                    this.cancelPress();
+                });
+
+                // Touch-Events for Mobile Devices.
+                k.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.startPress();
+                });
+
+                k.addEventListener('touchend', () => {
+                    this.cancelPress();
+                });
+            }
         });
 
         this.backspace.addEventListener('click', () => {
@@ -222,6 +251,43 @@ class Main {
             }
         });
 
+    }
+
+    /**
+     * Initiates a press timer to detect a long press action.
+     * The timer will trigger the `onLongClick` method after the duration
+     * specified by `LONG_CLICK_DURATION`.
+     *
+     * @return {void}
+     */
+    private startPress() {
+        console.log(`Long Press waiting: ${this.number}`);
+
+        // Start Press Count Timer.
+        // @ts-ignore
+        this.timer = setTimeout(() => {
+            this.onLongClick();
+        }, this.LONG_CLICK_DURATION);
+    }
+
+    /**
+     * Handles the long click event by setting the caller number to a predefined value
+     * and initiating a call to the voicemail service.
+     *
+     * @return {void} This method does not return any value.
+     */
+    private onLongClick() {
+        // Set Caller Number.
+        this.client.setDisplayNumber("*86");
+
+        // Call Voicemail.
+        this.client.callVoicemail();
+    }
+
+    private cancelPress() {
+        console.log(`Long Press cancelled`);
+
+        clearTimeout(this.timer);
     }
 
     /**
