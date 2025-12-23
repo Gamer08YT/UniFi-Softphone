@@ -88,8 +88,7 @@ project small 😂.**
 
 ### Build from Source
 
-When building DEB File in WSL2 you need to install dpkg and fakeroot, make shure you run `npm install` every time you relaunch WSL.
-Directory.
+When building DEB File in WSL2 you need to install dpkg and fakeroot, make sure you run `npm install` every time you relaunch WSL.
 
 
 ### License
