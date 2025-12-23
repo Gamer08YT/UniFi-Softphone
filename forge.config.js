@@ -19,6 +19,18 @@ module.exports = {
                     packageIdentity: "37017jaxnprivate.UnofficialUniFiTalkSoftphone"
                 }
             }
+        },
+        {
+            name: '@electron-forge/maker-deb',
+            config: {
+                options: {
+                    productName: "Unofficial UniFi Talk Softphone",
+                    genericName: "Softphone",
+                    section: "sound",
+                    maintainer: 'Jan Heil',
+                    homepage: 'https://github.com/Gamer08YT/UniFi-Softphone'
+                }
+            }
         }
     ]
 };
