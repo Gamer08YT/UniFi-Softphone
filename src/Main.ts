@@ -249,7 +249,12 @@ class Main {
             document.getElementById("realmField")?.setAttribute("value", this.getValue("realm") || "");
 
             // @ts-ignore
-            document.getElementById('wssMode')?.checked = this.getValue("wssMode") === "true";
+            if (this.getValue("wssMode") == "true") {
+                document.getElementById('wssMode')?.setAttribute("checked", "");
+            } else {
+                document.getElementById('wssMode')?.removeAttribute("checked");
+            }
+
         }
 
         if (state)
