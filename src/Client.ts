@@ -29,7 +29,7 @@ export class Client {
      * @param {string} password - The password for authentication.
      * @return {void} No return value.
      */
-    public async connect(realm: string = "unifi", port = 5066, username: string, password: string, secure: boolean): Promise<void> {
+    public async connect(realm: string = "unifi", port = 5066, username: string, password: string, secure: string): Promise<void> {
         console.log(`Connecting to FreeSwitch / UniFi Talk ${realm}...`);
 
         this.realm = realm;
@@ -48,7 +48,7 @@ export class Client {
             }
         };
 
-        const urlIO = this.getWSAPI(realm, port, secure);
+        const urlIO = this.getWSAPI(realm, port, (secure == "true"));
 
         console.log(`Connecting to ${urlIO}`);
 

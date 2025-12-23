@@ -124,9 +124,6 @@ class Main {
                 realm = split[0];
             }
 
-            // Save Port.
-            this.setValue("port", port);
-
             console.log(`Setup: ${username} / ${realm} / ${port} / ${password} / ${secure}`);
 
 
@@ -249,7 +246,7 @@ class Main {
         if (state) {
             document.getElementById("usernameField")?.setAttribute("value", this.getValue("username") || "");
             document.getElementById("passwordField")?.setAttribute("value", this.getValue("password") || "");
-            document.getElementById("realmField")?.setAttribute("value", (this.getValue("realm") || "") + (this.getValue("port") != null && this.getValue("port") != "5066" ? `:${this.getValue("port")}` : ""));
+            document.getElementById("realmField")?.setAttribute("value", (this.getValue("realm") || "unifi") + (this.getValue("port") != null && this.getValue("port") != "5066" ? `:${this.getValue("port")}` : ""));
 
             // @ts-ignore
             if (this.getValue("wssMode") == "true") {
