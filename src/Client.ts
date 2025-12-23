@@ -355,4 +355,29 @@ export class Client {
         // @ts-ignore
         document.getElementById('incoming-name').innerText = text;
     }
+
+    /**
+     * Updates the text content of the element with the ID "display" to the specified string.
+     *
+     * @param {string} s The string to set as the text content of the display element.
+     * @return {void} This method does not return a value.
+     */
+    public setDisplayNumber(s: string) {
+        // @ts-ignore
+        document.getElementById("display").textContent = s;
+    }
+
+    /**
+     * Initiates a call to the voicemail service.
+     * This method is designed to connect the user directly to their voicemail by
+     * dialing the designated voicemail access number.
+     *
+     * @return {void} Does not return a value.
+     */
+    public callVoicemail() {
+        console.log("Call Voicemail");
+
+        // Call Voicemail.
+        this.call("*86")
+    }
 }
