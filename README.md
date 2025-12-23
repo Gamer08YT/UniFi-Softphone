@@ -24,6 +24,30 @@ Contributions are welcome, maybe something nice will come of it :)
 - Hold a Call ❌
 - Mailbox ❌
 
+## Installation
+
+#### Linux:
+
+For Linux please download the latest Release from the [Releases](https://github.com/Gamer08YT/UniFi-Softphone/releases) page.
+
+Run sudo `apt install ./unofficialunifitalksoftphone_1.0.0_amd64.deb`
+
+With `unofficialunifitalksoftphone` you can start the Client.
+
+![img_2.png](img_2.png)
+
+#### Windows:
+
+Please download the Client directly from the Windows Store: https://www.microsoft.com/store/apps/9MSTDQNVN4HP
+
+#### MacOS:
+
+Currently there is no MacOS Version available, you need to build it yourself.
+
+Clone the Repository and run `npm install && npm run make`.
+
+This will create a `out` Folder with the Client inside the DMG Folder.
+
 ### HTTPS Issue:
 
 If you like to use the Softphone over HTTPS, you need to change the WebSocket Server from FreeSwitch in your UniFi
