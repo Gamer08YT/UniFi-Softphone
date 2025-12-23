@@ -31,6 +31,13 @@ module.exports = {
                     homepage: 'https://github.com/Gamer08YT/UniFi-Softphone'
                 }
             }
+        },
+        {
+            name: '@electron-forge/maker-dmg',
+            config: {
+                background: './build/appx/SplashScreen.scale-400.png',
+                format: 'ULFO'
+            }
         }
     ]
 };
