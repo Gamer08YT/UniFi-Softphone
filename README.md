@@ -49,6 +49,11 @@ Clone the Repository and run `npm install && npm run make`.
 
 This will create a `out` Folder with the Client inside the DMG Folder.
 
+### Ports
+
+#### WS: 5066
+#### WSS: 7443
+
 ### HTTPS Issue:
 
 If you like to use the Softphone over HTTPS, you need to change the WebSocket Server from FreeSwitch in your UniFi
