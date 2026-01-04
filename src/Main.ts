@@ -75,7 +75,8 @@ class Main {
     private pressDigit(d: string): void {
         if (this.client.isCalling()) {
             this.client.sendDTMF(d);
-        }
+        } else
+            this.client.playDTMF(d);
 
         if (this.number.length >= 20) return;
         this.number += d;
