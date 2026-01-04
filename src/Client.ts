@@ -164,7 +164,7 @@ export class Client {
             media: {
                 constraints: {
                     audio: true,
-                    video: true
+                    video: false
                 },
                 local: {
                     video: this.getVideoElement("localVideo")

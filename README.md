@@ -54,6 +54,9 @@ This will create a `out` Folder with the Client inside the DMG Folder.
 #### WS: 5066
 #### WSS: 7443
 
+#### Internal Config:
+```/etc/freeswitch/sip_profiles/internal.xml```
+
 ### HTTPS Issue:
 
 If you like to use the Softphone over HTTPS, you need to change the WebSocket Server from FreeSwitch in your UniFi

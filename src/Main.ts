@@ -53,7 +53,7 @@ class Main {
      **/
     private async registerClient() {
         // @ts-ignore
-        await this.client.connect(this.getValue("realm"), this.getValue("port"), this.getValue("username"), this.getValue("password"), this.getValue("wssMode")).then(r => console.log(r));
+        await this.client.connect(this.getValue("realm"), this.getValue("port"), this.getValue("username"), this.getValue("password"), (this.getValue("wssMode") == "true")).then(r => console.log(r));
     }
 
     /**
