@@ -1,4 +1,4 @@
-import {SimpleUserOptions} from 'sip.js/lib/platform/web';
+import {SimpleUser, SimpleUserOptions} from 'sip.js/lib/platform/web';
 // @ts-ignore
 import {version} from "../package.json";
 import {SimpleSoftphone} from "./extended/SimpleSoftphone";
@@ -9,7 +9,7 @@ import {Invitation} from "sip.js/lib/api";
  */
 export class Client {
     // Store User Instance.
-    private simpleUser: SimpleSoftphone | undefined;
+    private simpleUser: SimpleSoftphone | undefined | SimpleUser;
 
     // Store Realm Hostname.
     private realm: string = "unifi";
@@ -20,6 +20,127 @@ export class Client {
 
     // Store Audio Element.
     private currentAudio: HTMLAudioElement | null = null;
+
+    /**
+     * Represents the Dual-Tone Multi-Frequency (DTMF) frequencies for each key on a telephone keypad.
+     * Each key is associated with a pair of frequencies:
+     * the row frequency and the column frequency.
+     *
+     * Keys and frequencies:
+     * - "1": [697 Hz, 1209 Hz]
+     * - "2": [697 Hz, 1336 Hz]
+     * - "3": [697 Hz, 1477 Hz]
+     * - "A": [697 Hz, 1633 Hz]
+     * - "4": [770 Hz, 1209 Hz]
+     * - "5": [770 Hz, 1336 Hz]
+     * - "6": [770 Hz, 1477 Hz]
+     * - "B": [770 Hz, 1633 Hz]
+     * - "7": [852 Hz, 1209 Hz]
+     * - "8": [852 Hz, 1336 Hz]
+     * - "9": [852 Hz, 1477 Hz]
+     * - "C": [852 Hz, 1633 Hz]
+     * - "*": [941 Hz, 1209 Hz]
+     * - "0": [941 Hz, 1336 Hz]
+     * - "#": [941 Hz, 1477 Hz]
+     * - "D": [941 Hz, 1633 Hz]
+     *
+     * The object maps each key (string) to a tuple where the first element is the
+     * row frequency (number) and the second element is the column frequency (number).
+     */
+    private DTMF_FREQ: Record<string, [number, number]> = {
+        "1": [697, 1209],
+        "2": [697, 1336],
+        "3": [697, 1477],
+        "A": [697, 1633],
+        "4": [770, 1209],
+        "5": [770, 1336],
+        "6": [770, 1477],
+        "B": [770, 1633],
+        "7": [852, 1209],
+        "8": [852, 1336],
+        "9": [852, 1477],
+        "C": [852, 1633],
+        "*": [941, 1209],
+        "0": [941, 1336],
+        "#": [941, 1477],
+        "D": [941, 1633],
+    };
+
+    // Store Audio Context for DTMF.
+    private audioCtx: AudioContext | null = null;
+
+    /**
+     * Retrieves the existing AudioContext instance or creates a new one if it does not exist.
+     *
+     * @return {AudioContext} The AudioContext instance used for audio operations.
+     */
+    private getAudioContext(): AudioContext {
+        if (!this.audioCtx) this.audioCtx = new AudioContext();
+        return this.audioCtx;
+    }
+
+    /**
+     * Plays a Dual-Tone Multi-Frequency (DTMF) tone using the specified tone value, duration, and volume.
+     * DTMF tones are commonly used for sending signals, such as during phone dialing.
+     *
+     * @param {string} tone - The DTMF tone to play, represented by a single character (e.g., '1', '2', 'A').
+     * @param {number} [durationMs=120] - The duration of the tone in milliseconds (default is 120ms).
+     * @param {number} [volume=0.15] - The volume level of the tone, ranging from 0 (silent) to 1 (maximum).
+     * @return {Promise<Promise<void> | undefined>} - A promise that resolves once the DTMF tone is played, or undefined if the tone is invalid.
+     */
+    public async playDTMF(tone: string, durationMs = 120, volume = 0.15): Promise<Promise<void> | undefined> {
+        console.log(`Playing DTMF Tone: ${tone}`);
+
+        const key = tone.toUpperCase();
+        const pair = this.DTMF_FREQ[key];
+        if (!pair) return;
+
+        const ctx = this.getAudioContext();
+
+        // Wichtig in Browser/Electron: Audio erst nach User-Geste oder ctx.resume()
+        if (ctx.state === "suspended") {
+            await ctx.resume();
+        }
+
+        const now = ctx.currentTime;
+        const duration = Math.max(0.02, durationMs / 1000);
+
+        // Gain (Lautstärke) + sanfte Hüllkurve gegen Knackser
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(volume, now + 0.005);
+        gain.gain.setValueAtTime(volume, now + duration - 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+        // Zwei Oszillatoren (die zwei Frequenzen)
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        osc1.type = "sine";
+        osc2.type = "sine";
+        osc1.frequency.setValueAtTime(pair[0], now);
+        osc2.frequency.setValueAtTime(pair[1], now);
+
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc1.start(now);
+        osc2.start(now);
+        osc1.stop(now + duration);
+        osc2.stop(now + duration);
+
+        // Aufräumen
+        osc1.onended = () => {
+            try {
+                osc1.disconnect();
+                osc2.disconnect();
+                gain.disconnect();
+            } catch {
+                // ignore
+            }
+        };
+    }
+
 
     /**
      * Establishes a connection to the specified realm with the provided credentials.
@@ -38,15 +159,21 @@ export class Client {
             aor: this.getAOR(realm, username),
             media: {
                 remote: {
+                    video: this.getVideoElement("remoteVideo"),
                     audio: this.getAudioElement("remoteAudio")
+                },
+                local: {
+                    video: this.getVideoElement("localVideo")
                 }
             },
             userAgentOptions: {
+                sipExtensionExtraSupported: ["video"],
                 authorizationPassword: password,
                 authorizationUsername: username,
                 userAgentString: `UnofficialSoftphoneByteStore/${version}`
             }
         };
+
 
         const urlIO = this.getWSAPI(realm, port, (secure == "true"));
 
@@ -57,11 +184,11 @@ export class Client {
 
         // Supply delegate to handle inbound calls (optional)
         this.simpleUser.delegate = {
-            onCallReceived: async (invite: Invitation) => {
-                this.handleIncoming(invite);
-
-                console.warn("Call Received");
-            },
+            // onCallReceived: async (invite: Invitation) => {
+            //     this.handleIncoming(invite);
+            //
+            //     console.warn("Call Received");
+            // },
             onCallAnswered: () => {
                 this.stopSound();
 
@@ -79,6 +206,10 @@ export class Client {
                 this.setUIState(false)
             },
 
+            onCallDTMFReceived: (tone: string, duration: number) => {
+                // Play DTMF Tone
+                this.playDTMF(tone, duration);
+            }
         };
 
         // Connect to server
@@ -126,8 +257,6 @@ export class Client {
     public async call(dial: string): Promise<void> {
         let number = this.getRealmNumber(dial);
 
-        console.log(`Dialing ${number}`);
-
         // Play Dial Sound.
         this.playSound("outgoing.mp3");
 
@@ -135,7 +264,9 @@ export class Client {
         this.setCallUIState(true);
 
         // Place call to the destination
-        await this.simpleUser?.call(number);
+        await this.simpleUser?.call(number, {
+            earlyMedia: true
+        });
     }
 
     /**
@@ -149,6 +280,21 @@ export class Client {
         const el = document.getElementById(id);
         if (!(el instanceof HTMLAudioElement)) {
             throw new Error(`Element "${id}" not found or not an audio element.`);
+        }
+        return el;
+    }
+
+    /**
+     * Retrieves a video element from the DOM by its ID.
+     *
+     * @param {string} id - The ID of the video element to retrieve.
+     * @return {HTMLVideoElement} The video element corresponding to the provided ID.
+     * @throws {Error} If the element is not found or is not a video element.
+     */
+    private getVideoElement(id: string): HTMLVideoElement {
+        const el = document.getElementById(id);
+        if (!(el instanceof HTMLVideoElement)) {
+            throw new Error(`Element "${id}" not found or not an video element.`);
         }
         return el;
     }
@@ -344,6 +490,9 @@ export class Client {
      */
     public sendDTMF(digit: string): void {
         console.log(`Sending DTMF: ${digit}`);
+
+        // Play on Local Audio Element.
+        this.playDTMF(digit, 120);
 
         this.simpleUser?.sendDTMF(digit);
     }
