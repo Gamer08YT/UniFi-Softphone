@@ -262,7 +262,7 @@ export class Client {
 
         // Place call to the destination
         await this.simpleUser?.call(number, {
-            inviteWithoutSdp: false
+            inviteWithoutSdp: true
         });
     }
 
