@@ -118,6 +118,8 @@ class Main {
             // @ts-ignore
             let secure = document.getElementById("wssMode").checked;
 
+            console.log(`Secure: ${secure}`);
+
             const split = realm.split(":");
             let port = 5066;
 
