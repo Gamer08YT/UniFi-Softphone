@@ -148,11 +148,13 @@ export class Client {
      * Establishes a connection to the specified realm with the provided credentials.
      *
      * @param {string} [realm="192.168.1.1"] - The address or realm to connect to. Defaults to "192.168.1.1".
+     * @param port
      * @param {string} username - The username for authentication.
      * @param {string} password - The password for authentication.
+     * @param secure
      * @return {void} No return value.
      */
-    public async connect(realm: string = "unifi", port = 5066, username: string, password: string, secure: string): Promise<void> {
+    public async connect(realm: string = "unifi", port = 5066, username: string, password: string, secure: boolean): Promise<void> {
         console.log(`Connecting to FreeSwitch / UniFi Talk ${realm}...`);
 
         this.realm = realm;
@@ -179,7 +181,7 @@ export class Client {
             }
         };
 
-        const urlIO = this.getWSAPI(realm, port, (secure == "true"));
+        const urlIO = this.getWSAPI(realm, port, secure);
 
         console.log(`Connecting to ${urlIO}`);
 
@@ -218,6 +220,7 @@ export class Client {
      *
      * @param {string} realm - The realm or domain name for the WebSocket connection.
      * @param {number} port - The port number to be used in the WebSocket connection.
+     * @param secure
      * @return {string} - The constructed WebSocket API URL.
      */
     private getWSAPI(realm: string, port: number, secure: boolean): string {
