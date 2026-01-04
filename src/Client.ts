@@ -184,11 +184,11 @@ export class Client {
 
         // Supply delegate to handle inbound calls (optional)
         this.simpleUser.delegate = {
-            // onCallReceived: async (invite: Invitation) => {
-            //     this.handleIncoming(invite);
-            //
-            //     console.warn("Call Received");
-            // },
+            onCallReceived: async (invite: Invitation) => {
+                this.handleIncoming(invite);
+
+                console.warn("Call Received");
+            },
             onCallAnswered: () => {
                 this.stopSound();
 
