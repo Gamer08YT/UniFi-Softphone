@@ -1,4 +1,4 @@
-import {Invitation} from "sip.js/lib/api";
+import {NameAddrHeader} from "sip.js/lib/grammar/name-addr-header";
 
 /**
  * Delegate for {@link SimpleUser}.
@@ -20,12 +20,11 @@ export interface SimpleSoftphoneDelegate {
     onCallCreated?(): void;
 
     /**
-     * Called when a call is received.
-     * @remarks
-     * Callback for handling incoming INVITE requests.
-     * The callback must either accept or reject the incoming call by calling `answer()` or `decline()` respectively.
+     * Callback function that is invoked when a call is received.
+     *
+     * @return {void} Does not return a value.
      */
-    onCallReceived?(invite: Invitation): void;
+    onCallReceived?(addr: NameAddrHeader): void;
 
     /**
      * Called when a call is hung up.

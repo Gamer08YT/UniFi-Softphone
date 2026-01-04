@@ -1,14 +1,13 @@
-import {InvitationAcceptOptions} from "sip.js/lib/api/invitation-accept-options.js";
-import {InviterInviteOptions} from "sip.js/lib/api/inviter-invite-options.js";
-import {InviterOptions} from "sip.js/lib/api/inviter-options.js";
-import {Logger} from "sip.js/lib/core/log/logger.js";
-import {Message} from "sip.js/lib/api/message.js";
-import {RegistererRegisterOptions} from "sip.js/lib/api/registerer-register-options.js";
-import {RegistererUnregisterOptions} from "sip.js/lib/api/registerer-unregister-options.js";
-import {Session} from "sip.js/lib/api/session.js";
+import { InvitationAcceptOptions } from "sip.js/lib/api/invitation-accept-options.js";
+import { InviterInviteOptions } from "sip.js/lib/api/inviter-invite-options.js";
+import { InviterOptions } from "sip.js/lib/api/inviter-options.js";
+import { Logger } from "sip.js/lib/core/log/logger.js";
+import { Message } from "sip.js/lib/api/message.js";
+import { RegistererRegisterOptions } from "sip.js/lib/api/registerer-register-options.js";
+import { RegistererUnregisterOptions } from "sip.js/lib/api/registerer-unregister-options.js";
+import { Session } from "sip.js/lib/api/session.js";
 import {SimpleSoftphoneDelegate} from "./SimpleSoftphoneDelegate";
 import {SessionManager, SessionManagerOptions, SimpleUserOptions} from "sip.js/lib/platform/web";
-
 /**
  * A simple SIP user class.
  * @remarks
@@ -24,7 +23,7 @@ export class SimpleSoftphone {
 
     private logger: Logger;
     private options: SimpleUserOptions;
-    public session: Session | undefined = undefined;
+    private session: Session | undefined = undefined;
     private sessionManager: SessionManager;
 
     /**
@@ -37,9 +36,11 @@ export class SimpleSoftphone {
         this.delegate = options.delegate;
 
         // Copy options
-        this.options = {...options};
+        this.options = { ...options };
 
         // Session manager options
+        // @ts-ignore
+
         const sessionManagerOptions: SessionManagerOptions = {
             aor: this.options.aor,
             delegate: {
@@ -48,8 +49,7 @@ export class SimpleSoftphone {
                     this.session = session;
                     this.delegate?.onCallCreated?.();
                 },
-                onCallReceived: () => {
-                },
+                onCallReceived: (session) => this.delegate?.onCallReceived?.(this.extractInviteCaller(session)),
                 onCallHangup: () => {
                     this.session = undefined;
                     this.delegate?.onCallHangup && this.delegate?.onCallHangup();
@@ -341,5 +341,18 @@ export class SimpleSoftphone {
     public message(destination: string, message: string): Promise<void> {
         this.logger.log(`[${this.id}] sending message...`);
         return this.sessionManager.message(destination, message);
+    }
+
+    private extractInviteCaller(session: Session) {
+        // Caller SIP URI
+        const uri = session.remoteIdentity.uri;
+
+        // Caller number (user part)
+        const callerNumber = uri.user;
+
+        // Optional: display name
+        const displayName = session.remoteIdentity.displayName;
+
+        return session.remoteIdentity;
     }
 }
