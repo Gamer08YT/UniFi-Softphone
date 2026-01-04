@@ -160,8 +160,16 @@ export class Client {
         const options: SimpleUserOptions = {
             aor: this.getAOR(realm, username),
             media: {
+                constraints: {
+                    audio: true,
+                    video: true
+                },
+                local: {
+                    video: this.getVideoElement("localVideo")
+                },
                 remote: {
-                    audio: this.getAudioElement("remoteAudio")
+                    audio: this.getAudioElement("remoteAudio"),
+                    video: this.getVideoElement("remoteVideo")
                 }
             },
             userAgentOptions: {
@@ -251,7 +259,7 @@ export class Client {
 
         // Place call to the destination
         await this.simpleUser?.call(number, {
-            earlyMedia: true
+            inviteWithoutSdp: false
         });
     }
 
