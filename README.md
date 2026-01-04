@@ -22,7 +22,12 @@ Contributions are welcome, maybe something nice will come of it :)
 - Unregister (Do not disturb) ❌
 - Caller Log ❌
 - Hold a Call ❌
-- Mailbox ❌
+- Mailbox ✔️
+- Video ❌ (See below)
+
+#### Does Video Streaming work?
+Currently video streaming is not supported because UniFi Phones sending an RTP Stream to the Client, which is not
+supported by SIP.js because it uses WebRTC.
 
 ## Installation
 
