@@ -59,12 +59,18 @@ export class Client {
         this.simpleUser.delegate = {
             onCallReceived: async (invite: Invitation) => {
                 this.handleIncoming(invite);
+
+                console.warn("Call Received");
             },
             onCallAnswered: () => {
                 this.stopSound();
+
+                console.warn("Call Answered");
             },
             onCallHangup: () => {
                 this.setCallState(null);
+
+                console.warn("Call Hangup");
             },
             onServerConnect: () => {
                 this.setUIState(true);
@@ -273,7 +279,7 @@ export class Client {
         // Stop Incoming Sound.
         this.stopSound();
 
-        await this.simpleUser?.answer();
+        await this.simpleUser?.answer({});
     }
 
     /**

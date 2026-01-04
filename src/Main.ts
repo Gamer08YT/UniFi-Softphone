@@ -21,7 +21,7 @@ class Main {
     private deleteInterval: number | null = null;
     private timer: number | undefined;
 
-    private LONG_CLICK_DURATION = 2000;
+    private LONG_CLICK_DURATION = 1000;
 
     /**
      * Constructor for initializing the Unofficial UniFi Softphone application.
