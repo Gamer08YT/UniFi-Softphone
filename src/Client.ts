@@ -1,15 +1,17 @@
-import {SimpleUser, SimpleUserOptions} from 'sip.js/lib/platform/web';
 // @ts-ignore
 import {version} from "../package.json";
+
+import {Invitation, UserAgentOptions} from "sip.js/lib/api";
 import {SimpleSoftphone} from "./extended/SimpleSoftphone";
-import {Invitation} from "sip.js/lib/api";
+import {SimpleUserOptions} from "sip.js/lib/platform/web";
+import {NameAddrHeader} from "sip.js/lib/grammar/name-addr-header";
 
 /**
  * Represents a Client class for establishing communication with a specified realm and handling calls.
  */
 export class Client {
     // Store User Instance.
-    private simpleUser: SimpleSoftphone | undefined | SimpleUser;
+    private simpleUser: SimpleSoftphone | undefined;
 
     // Store Realm Hostname.
     private realm: string = "unifi";
@@ -159,21 +161,15 @@ export class Client {
             aor: this.getAOR(realm, username),
             media: {
                 remote: {
-                    video: this.getVideoElement("remoteVideo"),
                     audio: this.getAudioElement("remoteAudio")
-                },
-                local: {
-                    video: this.getVideoElement("localVideo")
                 }
             },
             userAgentOptions: {
-                sipExtensionExtraSupported: ["video"],
                 authorizationPassword: password,
                 authorizationUsername: username,
                 userAgentString: `UnofficialSoftphoneByteStore/${version}`
             }
         };
-
 
         const urlIO = this.getWSAPI(realm, port, (secure == "true"));
 
@@ -184,20 +180,14 @@ export class Client {
 
         // Supply delegate to handle inbound calls (optional)
         this.simpleUser.delegate = {
-            onCallReceived: async (invite: Invitation) => {
-                this.handleIncoming(invite);
-
-                console.warn("Call Received");
+            onCallReceived: async (addr: NameAddrHeader) => {
+                this.handleIncoming(addr);
             },
             onCallAnswered: () => {
                 this.stopSound();
-
-                console.warn("Call Answered");
             },
             onCallHangup: () => {
                 this.setCallState(null);
-
-                console.warn("Call Hangup");
             },
             onServerConnect: () => {
                 this.setUIState(true);
@@ -206,10 +196,6 @@ export class Client {
                 this.setUIState(false)
             },
 
-            onCallDTMFReceived: (tone: string, duration: number) => {
-                // Play DTMF Tone
-                this.playDTMF(tone, duration);
-            }
         };
 
         // Connect to server
@@ -376,11 +362,11 @@ export class Client {
      * @param {Invitation} invite - The invitation object containing call details, such as the remote identity.
      * @return {void} This method does not return any value.
      */
-    private handleIncoming(invite: Invitation): void {
+    private handleIncoming(invite: NameAddrHeader): void {
         console.log("Incoming Call!");
 
-        let displayNumber = invite.remoteIdentity.uri.user;
-        let displayName = invite.remoteIdentity.displayName;
+        let displayNumber = invite.uri.user;
+        let displayName = invite.displayName;
 
         // Set Caller Details.
         this.setIncomingUI(displayNumber, displayName);
