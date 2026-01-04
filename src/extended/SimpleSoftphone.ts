@@ -8,7 +8,6 @@ import {RegistererUnregisterOptions} from "sip.js/lib/api/registerer-unregister-
 import {Session} from "sip.js/lib/api/session.js";
 import {SimpleSoftphoneDelegate} from "./SimpleSoftphoneDelegate";
 import {SessionManager, SessionManagerOptions, SimpleUserOptions} from "sip.js/lib/platform/web";
-import {Invitation} from "sip.js/lib/api";
 
 /**
  * A simple SIP user class.
