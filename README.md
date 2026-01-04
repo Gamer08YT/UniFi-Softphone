@@ -94,7 +94,7 @@ on [FreeSwitch](https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained
 
 I used the [SIP.js](https://sipjs.com/guides/server-configuration/freeswitch/) library to connect to the server.
 
-If you want to use it externally, you need to forward port 5060 and 5066 which is very unsecure.
+If you want to use it externally, you need to forward port 5066 which is very unsecure.
 
 **Remind your credentials are stored in the Browser LocalStorage, to keep your data safe, local at your side and my
 project small 😂.**
