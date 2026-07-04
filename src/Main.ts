@@ -7,7 +7,7 @@ class Main {
     // Store VOIP Client Instance.
     private client = new Client();
     private unifiApi = new UniFiApi();
-
+    private contactsOpen = false;
 
     private digitsEl = document.getElementById('digits') as HTMLElement;
     private carrierEl = document.getElementById('carrier') as HTMLElement;
@@ -19,6 +19,8 @@ class Main {
     private acceptIncoming = document.getElementById('accept') as HTMLElement;
     private setupSave = document.getElementById('saveConfig') as HTMLElement;
     private avatarContainer = document.getElementById('avatar-container') as HTMLElement;
+    private contactsContainer = document.getElementById ("contactsContainer") as HTMLElement;
+    private contactsToggle = document.getElementById("contactsToggle") as HTMLElement;
 
     private number: string = '';
     private deleteInterval: number | null = null;
@@ -41,12 +43,39 @@ class Main {
         // Handle TLS.
         this.handleSecure();
 
+	this.contactsToggle.addEventListener(
+        	    "click",
+	            () => {
+
+                	this.contactsOpen =
+                    	!this.contactsOpen;
+
+                	if (this.contactsOpen) {
+
+                    	this.contactsContainer.style.display =
+                        	"block";
+
+                    	this.contactsToggle.innerText =
+                        	"▼ Kontakte";
+
+                	} else {
+
+                    	this.contactsContainer.style.display =
+                        "none";
+
+                    	this.contactsToggle.innerText =
+                        	"▶ Kontakte";
+                	}
+            	}
+        	);
+
         // Handle Setup.
         if (this.needSetup()) {
             this.setSetup(true);
         } else {
             this.setSetup(false);
             this.registerClient();
+	    this.loadContacts();
         }
     }
 
@@ -206,36 +235,7 @@ this.unifiApi.login(
 */
 
 
-this.unifiApi.setHost(
-    realm
-);
-
-
-this.unifiApi.getContacts()
-    .then((contacts) => {
-
-        console.log(
-            "UniFi Contacts:"
-        );
-
-        console.log(
-            contacts
-        );
-
-    })
-    .catch((error) => {
-
-        console.error(
-            "Contacts failed:"
-        );
-
-        console.error(
-            error
-        );
-
-    });
-
-
+this.loadContacts();
 
                 this.setSetup(false);
             }).catch(reason => {
@@ -480,6 +480,92 @@ this.unifiApi.getContacts()
      *
      * @return {void} No return value.
      */
+
+private loadContacts(): void {
+
+    const realm =
+        this.getValue("realm");
+
+    if (!realm) {
+        return;
+    }
+
+    this.unifiApi.setHost(
+        realm
+    );
+
+    this.unifiApi.getContacts()
+        .then((contacts) => {
+
+            this.renderContacts(
+                contacts
+            );
+
+        })
+        .catch((error) => {
+
+            console.error(
+                "Contacts failed:"
+            );
+
+            console.error(
+                error
+            );
+
+        });
+}
+
+private renderContacts(
+        contacts: any[]
+    ): void {
+
+        this.contactsContainer.innerHTML = "";
+
+        contacts.forEach(contact => {
+
+console.log(
+    "Contact:",
+    contact.first_name,
+    contact.last_name
+);
+
+
+
+
+            const number =
+                contact.phone_numbers?.[0]?.did || "";
+
+            const div =
+                document.createElement("div");
+
+            div.className = "contact-entry";
+	    div.style.cursor = "pointer";
+	    div.addEventListener("click", () => {
+        			this.number = number;
+        			this.render();
+    			}
+			);
+
+            div.innerHTML = `
+                <div>
+                    <strong>
+                        ${contact.first_name}
+                        ${contact.last_name}
+                    </strong>
+                </div>
+                <div>
+                    ${number}
+                </div>
+            `;
+
+            this.contactsContainer.appendChild(
+                div
+            );
+
+        });
+    }
+
+
     private handleSecure() {
         if (window.location.protocol === "https:") {
             document.getElementById("tlsAlert")?.removeAttribute("hidden");

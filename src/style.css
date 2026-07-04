@@ -201,3 +201,31 @@ select, input {
     background: var(--secondary-color);
     height: 100%;
 }
+.contacts-panel {
+    margin-bottom: 12px;
+    padding: 10px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.05);
+}
+
+.contacts-title {
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+#contactsContainer {
+    max-height: 140px;
+    overflow-y: auto;
+}
+
+.contact-entry {
+    padding: 6px;
+    margin-bottom: 4px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.contact-entry:hover {
+    background: rgba(255,255,255,0.08);
+}
