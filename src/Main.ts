@@ -1,10 +1,13 @@
 import {Client} from "./Client";
+import {UniFiApi} from "./UniFiApi";
 // @ts-ignore
 import {version} from "../package.json";
 
 class Main {
     // Store VOIP Client Instance.
     private client = new Client();
+    private unifiApi = new UniFiApi();
+
 
     private digitsEl = document.getElementById('digits') as HTMLElement;
     private carrierEl = document.getElementById('carrier') as HTMLElement;
@@ -132,6 +135,14 @@ class Main {
 	    let availability = document.getElementById("availabilityField").value;
 
 	    // @ts-ignore
+	    let unifiUser =
+	    document.getElementById("unifiUserField").value;
+
+	    // @ts-ignore
+	    let unifiPassword =
+	    document.getElementById("unifiPasswordField").value;
+
+	    // @ts-ignore
 	    let redirectNumber =
 	    document.getElementById("redirectNumberField").value;
 
@@ -159,9 +170,72 @@ class Main {
                 this.setValue("port", port);
                 this.setValue("wssMode", secure);
 		this.setValue("availability", availability);
+		this.setValue("unifiUser", unifiUser);
+		this.setValue("unifiPassword", unifiPassword);
 
 		this.setValue("redirectNumber",
     			redirectNumber);
+
+/*		
+this.unifiApi.login(
+    realm,
+    unifiUser,
+    unifiPassword
+).then(async () => {
+
+    console.log("UniFi Login successful");
+
+    const contacts =
+        await this.unifiApi.getContacts();
+
+    console.log(
+        "UniFi Contacts:"
+    );
+
+    console.log(
+        contacts
+    );
+
+}).catch(error => {
+
+    console.error(
+        `UniFi Login failed: ${error}`
+    );
+
+});
+*/
+
+
+this.unifiApi.setHost(
+    realm
+);
+
+
+this.unifiApi.getContacts()
+    .then((contacts) => {
+
+        console.log(
+            "UniFi Contacts:"
+        );
+
+        console.log(
+            contacts
+        );
+
+    })
+    .catch((error) => {
+
+        console.error(
+            "Contacts failed:"
+        );
+
+        console.error(
+            error
+        );
+
+    });
+
+
 
                 this.setSetup(false);
             }).catch(reason => {
@@ -347,6 +421,13 @@ class Main {
 		document.getElementById("redirectNumberField").value =
     		this.getValue("redirectNumber") || "";
 
+	// @ts-ignore
+		document.getElementById("unifiUserField").value =
+		this.getValue("unifiUser") || "";
+
+	// @ts-ignore
+		document.getElementById("unifiPasswordField").value =
+    		this.getValue("unifiPassword") || "";
 
             // @ts-ignore
             if (this.getValue("wssMode") == "true") {

@@ -1,4 +1,9 @@
 import { app, BrowserWindow } from "electron";
+
+app.commandLine.appendSwitch(
+    "ignore-certificate-errors"
+);
+
 import * as path from "node:path";
 
 class Electron {
