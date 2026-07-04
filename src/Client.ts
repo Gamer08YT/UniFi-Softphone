@@ -258,9 +258,19 @@ export class Client {
      * @return {Promise<void>} A promise that resolves once the call operation is initiated.
      * @param dial
      */
-    public async call(dial: string): Promise<void> {
-        let number = this.getRealmNumber(dial);
+    	public async setAvailability(mode: string): Promise<void> {
+    	if (!this.simpleUser) {
+        return;
+    	}
 
+    	if (mode === "dnd") {
+        await this.simpleUser.unregister();
+    	} else {
+        await this.simpleUser.register();
+    	}
+	}
+     public async call(dial: string): Promise<void> {
+        let number = this.getRealmNumber(dial);
 
         // Set Call State to true.
         this.setCallUIState(true);
@@ -535,4 +545,25 @@ export class Client {
         // Call Voicemail.
         this.call("*86")
     }
+
+	private addCallLog(type: string, number: string): void {
+
+    let logs = JSON.parse(localStorage.getItem("callLog") || "[]");
+
+    logs.unshift({
+        type: type,
+        number: number,
+        timestamp: new Date().toLocaleString()
+    });
+
+    logs = logs.slice(0, 50);
+
+    localStorage.setItem(
+        "callLog",
+        JSON.stringify(logs)
+    );
+
+    this.renderCallLog();
+}
+
 }

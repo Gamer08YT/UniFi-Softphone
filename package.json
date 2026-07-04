@@ -10,7 +10,7 @@
     "prestart": "tsc ./src/Electron.ts --outDir ./dist",
     "start": "electron .",
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && tsc ./src/Electron.ts --outDir ./dist",
     "make": "electron-forge make"
   },
   "dependencies": {

@@ -51,10 +51,20 @@ class Main {
      * Registers the client by establishing a connection with the specified server.
      *
      **/
-    private async registerClient() {
-        // @ts-ignore
-        await this.client.connect(this.getValue("realm"), this.getValue("port"), this.getValue("username"), this.getValue("password"), (this.getValue("wssMode") == "true")).then(r => console.log(r));
-    }
+
+	private async registerClient() {
+    	await this.client.connect(
+      		this.getValue("realm"),
+       		this.getValue("port"),
+     		this.getValue("username"),
+	        this.getValue("password"),
+	        (this.getValue("wssMode") == "true")
+	    );
+
+	    await this.client.setAvailability(
+	        this.getValue("availability") || "available"
+	    );
+	}
 
     /**
      * Renders the current state of the component by updating the text content
@@ -113,10 +123,13 @@ class Main {
             let realm = document.getElementById("realmField").value;
 
             // @ts-ignore
-            let password = document.getElementById("passwordField").value;
+	    let password = document.getElementById("passwordField").value;
 
-            // @ts-ignore
-            let secure = document.getElementById("wssMode").checked;
+	    // @ts-ignore
+	    let secure = document.getElementById("wssMode").checked;
+
+	    // @ts-ignore
+	    let availability = document.getElementById("availabilityField").value;
 
             console.log(`Secure: ${secure}`);
 
@@ -141,6 +154,7 @@ class Main {
                 this.setValue("password", password);
                 this.setValue("port", port);
                 this.setValue("wssMode", secure);
+		this.setValue("availability", availability);
 
                 this.setSetup(false);
             }).catch(reason => {
