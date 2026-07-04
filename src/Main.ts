@@ -546,6 +546,18 @@ console.log(
     			}
 			);
 
+	    div.addEventListener(
+    		"dblclick",
+		    () => {
+
+        	this.number = number;
+        	this.render();
+
+ 	       this.callBtn.click();
+
+    		}
+		);
+
             div.innerHTML = `
                 <div>
                     <strong>

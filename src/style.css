@@ -224,8 +224,46 @@ select, input {
     margin-bottom: 4px;
     border-radius: 8px;
     cursor: pointer;
+    user-select: none;
+    transition: background-color 0.15s ease;
 }
 
+
 .contact-entry:hover {
-    background: rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.12);
+}
+
+
+.contact-entry:active {
+    background: rgba(255,255,255,0.20);
+}
+
+.softphone-layout {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.sidebar-panel {
+    width: 250px;
+    flex-shrink: 0;
+}
+
+.phone-card {
+    flex-grow: 1;
+}
+
+.softphone-layout {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.sidebar-panel {
+    width: 250px;
+    flex-shrink: 0;
+}
+
+.phone-card {
+    flex-grow: 1;
 }
