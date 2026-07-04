@@ -193,11 +193,18 @@ export class Client {
             onCallReceived: async (addr: NameAddrHeader) => {
                 this.handleIncoming(addr);
             },
+	    onCallProgress: () => {
+		this.stopSound();            
+		this.playSound("outgoing.mp3");
+                
+	    },
             onCallAnswered: () => {
                 this.stopSound();
             },
             onCallHangup: () => {
-                this.setCallState(null);
+            this.stopSound();
+            this.setCallState(null);
+
             },
             onServerConnect: () => {
                 this.setUIState(true);
@@ -254,16 +261,12 @@ export class Client {
     public async call(dial: string): Promise<void> {
         let number = this.getRealmNumber(dial);
 
-        // Play Dial Sound.
-        this.playSound("outgoing.mp3");
 
         // Set Call State to true.
         this.setCallUIState(true);
 
         // Place call to the destination
-        await this.simpleUser?.call(number, {
-            inviteWithoutSdp: true
-        });
+        await this.simpleUser?.call(number); 
     }
 
     /**

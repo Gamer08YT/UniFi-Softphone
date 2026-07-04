@@ -45,9 +45,11 @@ export class SimpleSoftphone {
             aor: this.options.aor,
             delegate: {
                 onCallAnswered: () => this.delegate?.onCallAnswered?.(),
-                onCallCreated: (session: Session) => {
-                    this.session = session;
-                    this.delegate?.onCallCreated?.();
+		onCallCreated: (session: Session) => {
+    			this.session = session;
+
+			    this.delegate?.onCallCreated?.();
+		
                 },
                 onCallReceived: (session) => this.delegate?.onCallReceived?.(this.extractInviteCaller(session)),
                 onCallHangup: () => {
@@ -195,9 +197,27 @@ export class SimpleSoftphone {
         if (this.session) {
             return Promise.reject(new Error("Session already exists."));
         }
-        return this.sessionManager.call(destination, inviterOptions, inviterInviteOptions).then(() => {
-            return;
-        });
+
+inviterInviteOptions = inviterInviteOptions || {};
+inviterInviteOptions.requestDelegate =
+    inviterInviteOptions.requestDelegate || {};
+
+inviterInviteOptions.requestDelegate.onProgress = (response: any) => {
+
+    if (
+        response?.message?.statusCode === 180 ||
+        response?.message?.statusCode === 183
+    ) {
+        this.delegate?.onCallProgress?.();
+    }
+};
+
+return this.sessionManager
+    .call(destination, inviterOptions, inviterInviteOptions)
+    .then(() => {
+        return;
+    });
+
     }
 
     /**
