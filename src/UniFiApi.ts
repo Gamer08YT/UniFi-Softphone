@@ -24,6 +24,21 @@ public setHost(
 console.log(
     `UniFi Login: https://${host}/api/auth/login`
 );
+console.log(
+    "Host:",
+    host
+);
+
+console.log(
+    "User:",
+    username
+);
+
+console.log(
+    "Password length:",
+    password.length
+);
+
 
         const response = await fetch(
             `https://${host}/api/auth/login`,
@@ -62,6 +77,18 @@ if (!response.ok) {
         text
     );
 
+    console.error(
+    "Login payload:"
+);
+
+console.error(
+    JSON.stringify({
+    username: username,
+    passwordLength: password.length
+    })
+
+);	
+
     throw new Error(
         `Login failed (${response.status})`
     );
@@ -92,7 +119,51 @@ if (!response.ok) {
         	);
     	}
 
- 	   return await response.json();
+	
+	return await response.json();
+	}
+
+	public async getUsers(): Promise<any[]> {
+
+    const response = await fetch(
+        `https://${this.host}/proxy/talk/api/users`,
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    if (!response.ok) {
+
+        throw new Error(
+            `Users failed (${response.status})`
+        );
+
+    }
+
+    return await response.json();
+}
+
+	public async getCallLog(
+    	userId: string
+		): Promise<any> {
+
+		    const response = await fetch(
+        		`https://${this.host}/proxy/talk/api/call_log/user/${userId}?limit=10&offset=0`,
+        	{
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    if (!response.ok) {
+
+        throw new Error(
+            `Call log failed (${response.status})`
+        );
+    }
+
+    return await response.json();
 }
 
 }

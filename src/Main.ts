@@ -21,6 +21,9 @@ class Main {
     private avatarContainer = document.getElementById('avatar-container') as HTMLElement;
     private contactsContainer = document.getElementById ("contactsContainer") as HTMLElement;
     private contactsToggle = document.getElementById("contactsToggle") as HTMLElement;
+    private callLogContainer = document.getElementById("callLogContainer") as HTMLElement;
+    private callLogToggle = document.getElementById("callLogToggle") as HTMLElement;
+    private callLogOpen = false;
 
     private number: string = '';
     private deleteInterval: number | null = null;
@@ -67,17 +70,70 @@ class Main {
                         	"▶ Kontakte";
                 	}
             	}
-        	);
+	);
+
+	this.callLogToggle.addEventListener(
+    		"click",
+    		() => {
+
+        		this.callLogOpen =
+            		!this.callLogOpen;
+
+	        	if (this.callLogOpen) {
+
+	            	this.callLogContainer.style.display =
+         		       	"block";
+
+		        this.callLogToggle.innerText =
+        		        "▼ Anrufliste";
+
+	        	} else {
+
+	        	this.callLogContainer.style.display =
+         	       	"none";
+
+	       		this.callLogToggle.innerText =
+        	        	"▶ Anrufliste";
+
+        		}
+ 	}
+        );
 
         // Handle Setup.
+
+
+        console.log(
+            "needSetup:",
+            this.needSetup()
+        );
+
         if (this.needSetup()) {
+
             this.setSetup(true);
+
         } else {
+
             this.setSetup(false);
-            this.registerClient();
-	    this.loadContacts();
-        }
+
+this.registerClient().then(async () => {
+
+    const realm =
+        this.getValue("realm");
+
+    if (
+        realm 
+    ) {
+
+	this.loadContacts();
+
+	this.loadCallLog();
+
     }
+
+});
+        }
+
+	}
 
     /**
      * Registers the client by establishing a connection with the specified server.
@@ -235,9 +291,14 @@ this.unifiApi.login(
 */
 
 
-this.loadContacts();
+	this.loadContacts();
 
-                this.setSetup(false);
+	this.loadCallLog();
+
+	this.setSetup(false);
+
+
+
             }).catch(reason => {
                 document.getElementById("connectionFailedAlert")?.removeAttribute("hidden");
 
@@ -481,7 +542,11 @@ this.loadContacts();
      * @return {void} No return value.
      */
 
+
+
 private loadContacts(): void {
+
+console.log("loadContacts()");
 
     const realm =
         this.getValue("realm");
@@ -496,6 +561,14 @@ private loadContacts(): void {
 
     this.unifiApi.getContacts()
         .then((contacts) => {
+
+
+console.log(
+    "Contacts loaded:",
+    contacts
+);
+
+
 
             this.renderContacts(
                 contacts
@@ -513,6 +586,131 @@ private loadContacts(): void {
             );
 
         });
+
+}
+
+private loadCallLog(): void {
+
+    this.unifiApi.getUsers()
+        .then((users) => {
+
+            const currentUser =
+                users.find(
+                    (u: any) => u.isSelf === true
+                );
+
+            if (!currentUser) {
+                throw new Error(
+                    "Current user not found"
+                );
+            }
+
+            return this.unifiApi.getCallLog(
+                currentUser.unique_id
+            );
+
+        })
+
+    .then((data) => {
+
+        console.log(
+            "Call Log:"
+        );
+
+
+	this.renderCallLog(
+    	data
+	);
+
+    })
+    .catch((error) => {
+
+        console.error(
+            error
+        );
+
+    });
+}
+
+private renderCallLog(
+    data: any
+): void {
+
+    this.callLogContainer.innerHTML = "";
+
+    data.calls.forEach((call: any) => {
+
+        const number =
+            call.to || call.from;
+
+        const div =
+            document.createElement("div");
+
+        div.className =
+            "contact-entry";
+
+	const callTime =
+    	new Date(call.time);
+
+	const formattedDate =
+	    callTime.toLocaleDateString(
+        	"de-DE"
+   	 );
+	
+	const formattedTime =
+    	callTime.toLocaleTimeString(
+        	"de-DE",
+        	{
+            	hour: "2-digit",
+           	 minute: "2-digit"
+        	}
+    	);
+
+	div.innerHTML = `
+    	    <div>
+	        ${call.direction === "out" ? "📤" : "📥"}
+        	${number}
+	    </div>
+
+    		<div
+        		style="
+            		font-size:0.8rem;
+            		opacity:0.7;
+            		margin-left:22px;
+       		 ">
+		        ${formattedDate}
+        		${formattedTime} Uhr
+    		</div>
+		`;
+
+
+        div.addEventListener(
+            "click",
+            () => {
+
+                this.number = number;
+                this.render();
+
+            }
+        );
+
+        div.addEventListener(
+            "dblclick",
+            () => {
+
+                this.number = number;
+                this.render();
+
+                this.callBtn.click();
+
+            }
+        );
+
+        this.callLogContainer.appendChild(
+            div
+        );
+
+    });
 }
 
 private renderContacts(

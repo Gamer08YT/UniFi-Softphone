@@ -267,3 +267,15 @@ select, input {
 .phone-card {
     flex-grow: 1;
 }
+
+.calllog-panel {
+    margin-top: 12px;
+    padding: 10px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.05);
+}
+
+.contact-entry {
+    padding: 6px;
+    margin-bottom: 8px;
+}
