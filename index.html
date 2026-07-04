@@ -206,13 +206,30 @@
                     <input class="form-check-input" type="checkbox" role="switch" id="wssMode">
                     <label class="form-check-label" for="wssMode">Use Secure Websocket (wss://), must be configured in
                         FreeSwitch.</label>
-                <div class="mb-3">
-    			<label for="availabilityField" class="form-label">Availability</label>
-    			<select class="form-select" id="availabilityField">
-       			<option value="available">Available</option>
-        		<option value="dnd">Do Not Disturb</option>
-    		</select>
-		</div>
+
+<div class="mb-3">
+    <label for="availabilityField" class="form-label">
+        Availability
+    </label>
+
+    <select class="form-select" id="availabilityField">
+        <option value="available">Available</option>
+        <option value="dnd">Do Not Disturb</option>
+        <option value="redirect">Redirect</option>
+    </select>
+</div>
+
+<div class="mb-3">
+    <label for="redirectNumberField" class="form-label">
+        Redirect Number
+    </label>
+
+    <input
+        type="text"
+        class="form-control"
+        id="redirectNumberField"
+        placeholder="+49123456789">
+</div>
 
 		</div>
                 <div class="alert alert-danger" hidden="hidden" id="connectionFailedAlert" role="alert">

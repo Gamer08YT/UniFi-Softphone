@@ -131,6 +131,10 @@ class Main {
 	    // @ts-ignore
 	    let availability = document.getElementById("availabilityField").value;
 
+	    // @ts-ignore
+	    let redirectNumber =
+	    document.getElementById("redirectNumberField").value;
+
             console.log(`Secure: ${secure}`);
 
             const split = realm.split(":");
@@ -155,6 +159,9 @@ class Main {
                 this.setValue("port", port);
                 this.setValue("wssMode", secure);
 		this.setValue("availability", availability);
+
+		this.setValue("redirectNumber",
+    			redirectNumber);
 
                 this.setSetup(false);
             }).catch(reason => {
@@ -331,6 +338,15 @@ class Main {
             document.getElementById("usernameField")?.setAttribute("value", this.getValue("username") || "");
             document.getElementById("passwordField")?.setAttribute("value", this.getValue("password") || "");
             document.getElementById("realmField")?.setAttribute("value", (this.getValue("realm") || "unifi") + (this.getValue("port") != null && this.getValue("port") != "5066" ? `:${this.getValue("port")}` : ""));
+
+	// @ts-ignore
+		document.getElementById("availabilityField").value =
+    		this.getValue("availability") || "available";
+
+	// @ts-ignore
+		document.getElementById("redirectNumberField").value =
+    		this.getValue("redirectNumber") || "";
+
 
             // @ts-ignore
             if (this.getValue("wssMode") == "true") {
