@@ -1,6 +1,6 @@
 {
   "name": "UnofficialUniFiTalkSoftphone",
-  "version": "1.0.2",
+  "version": "1.0.3-beta1",
   "description": "Unofficial UniFi Talk Softphone.",
   "main": "dist/Electron.js",
   "author": {
