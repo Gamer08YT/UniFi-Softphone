@@ -198,8 +198,18 @@ export class Client {
 		this.playSound("outgoing.mp3");
                 
 	    },
-            onCallAnswered: () => {
+	    onCallAnswered: () => {
+
+  		  console.log(
+        		"Call answered"
+    			);
+
                 this.stopSound();
+
+    	        this.setCallState(
+                "connected"
+                );
+
             },
             onCallHangup: () => {
             this.stopSound();
@@ -435,8 +445,89 @@ export class Client {
         // Stop Incoming Sound.
         this.stopSound();
 
-        await this.simpleUser?.answer({});
-    }
+console.log(
+    "Current session:",
+    (this.simpleUser as any).session
+);
+
+const session =
+    (this.simpleUser as any).session;
+
+console.log(
+    "Session state:",
+    session?._state
+);
+
+console.log(
+    "Session canceled:",
+    session?.isCanceled
+);
+
+console.log(
+    "Session disposed:",
+    session?.disposed
+);
+
+console.log(
+    "PeerConnection:",
+    session?._sessionDescriptionHandler?._peerConnection
+);
+
+
+try {
+
+
+console.log("=== PRE-MIC-TEST ===");
+
+try {
+
+    const start = performance.now();
+
+    const stream =
+        await navigator.mediaDevices.getUserMedia({
+            audio: true,
+            video: false
+        });
+
+    console.log(
+        "getUserMedia SUCCESS after",
+        performance.now() - start,
+        "ms"
+    );
+
+    stream.getTracks().forEach(track => {
+        track.stop();
+    });
+
+} catch(error) {
+
+    console.error(
+        "getUserMedia FAILED",
+        error
+    );
+
+}
+
+
+
+    await this.simpleUser?.answer();
+
+    console.log(
+        "answer() returned successfully"
+    );
+
+} catch (error) {
+
+    console.error(
+        "answer() failed:"
+    );
+
+    console.error(
+        error
+    );
+
+}
+}
 
     /**
      * Declines the current action or request associated with the `simpleUser` object, if it exists.

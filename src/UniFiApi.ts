@@ -21,25 +21,6 @@ public setHost(
 
 	this.host = host;
 
-console.log(
-    `UniFi Login: https://${host}/api/auth/login`
-);
-console.log(
-    "Host:",
-    host
-);
-
-console.log(
-    "User:",
-    username
-);
-
-console.log(
-    "Password length:",
-    password.length
-);
-
-
         const response = await fetch(
             `https://${host}/api/auth/login`,
             {
@@ -56,11 +37,6 @@ console.log(
                 credentials: "include"
             }
         );
-
-
-console.log(
-    `UniFi Login Status: ${response.status}`
-);
 
 
 

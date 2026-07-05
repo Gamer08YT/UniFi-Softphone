@@ -279,3 +279,8 @@ select, input {
     padding: 6px;
     margin-bottom: 8px;
 }
+
+#callLogContainer {
+    max-height: 450px;
+    overflow-y: auto;
+}

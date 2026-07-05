@@ -117,20 +117,18 @@ class Main {
 
 this.registerClient().then(async () => {
 
-    const realm =
-        this.getValue("realm");
+    const realm = this.getValue("realm");
 
-    if (
-        realm 
-    ) {
+    if (realm) {
 
-	this.loadContacts();
+        this.loadContacts();
 
-	this.loadCallLog();
+        this.loadCallLog();
 
     }
 
 });
+
         }
 
 	}
@@ -152,6 +150,7 @@ this.registerClient().then(async () => {
 	    await this.client.setAvailability(
 	        this.getValue("availability") || "available"
 	    );
+
 	}
 
     /**
@@ -380,18 +379,22 @@ this.unifiApi.login(
             this.render();
         });
 
-        this.callBtn.addEventListener('click', () => {
-            if (!this.number) {
-                this.callBtn.classList.add('shake');
-                setTimeout(() => this.callBtn.classList.remove('shake'), 300);
-                return;
-            }
+	this.callBtn.addEventListener('click', () => {
 
-            if (!this.client.isCalling()) {
-                this.client.call(this.number);
-            } else
-                this.client.hangup();
-        });
+    		if (this.client.isCalling()) {
+        	this.client.hangup();
+        	return;
+    		}
+
+    		if (!this.number) {
+        		this.callBtn.classList.add('shake');
+        		setTimeout(() => this.callBtn.classList.remove('shake'), 300);
+        		return;
+    			}
+
+    		this.client.call(this.number);
+	});
+
 
         this.declineIncoming.addEventListener('click', () => this.client.decline());
         this.acceptIncoming.addEventListener('click', () => this.client.anwser());
@@ -618,6 +621,18 @@ private loadCallLog(): void {
         );
 
 
+console.log(
+    JSON.stringify(
+        data.calls[0],
+        null,
+        2
+    )
+);
+
+
+
+
+
 	this.renderCallLog(
     	data
 	);
@@ -666,12 +681,46 @@ private renderCallLog(
         	}
     	);
 
-	div.innerHTML = `
-    	    <div>
-	        ${call.direction === "out" ? "📤" : "📥"}
-        	${number}
-	    </div>
+	const minutes =
+	    Math.floor(call.duration / 60);
 
+	const seconds =
+    		call.duration % 60;
+
+	const formattedDuration =
+    		`${minutes}:${seconds
+        	.toString()
+	        .padStart(2, "0")}`;
+
+
+
+	
+	let icon = "📥";
+	let color = "#4caf50";
+
+		if (call.direction === "out") {
+
+		    icon = "📤";
+    		    color = "#4da3ff";
+
+		}
+
+		if (call.status !== "accepted") {
+
+		    icon = "❌";
+		    color = "#ff5252";
+
+		}
+
+	div.innerHTML = `
+		<div
+    			style="
+        		color:${color};
+        		font-weight:bold;
+    			">
+    			${icon}
+    			${number}
+		</div>
     		<div
         		style="
             		font-size:0.8rem;
@@ -680,6 +729,7 @@ private renderCallLog(
        		 ">
 		        ${formattedDate}
         		${formattedTime} Uhr
+			<br>Dauer: ${formattedDuration}
     		</div>
 		`;
 

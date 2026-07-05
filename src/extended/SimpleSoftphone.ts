@@ -42,6 +42,7 @@ export class SimpleSoftphone {
         // @ts-ignore
 
         const sessionManagerOptions: SessionManagerOptions = {
+
             aor: this.options.aor,
             delegate: {
                 onCallAnswered: () => this.delegate?.onCallAnswered?.(),
@@ -51,7 +52,20 @@ export class SimpleSoftphone {
 			    this.delegate?.onCallCreated?.();
 		
                 },
-                onCallReceived: (session) => this.delegate?.onCallReceived?.(this.extractInviteCaller(session)),
+onCallReceived: (session) => {
+
+    this.session = session;
+
+    console.log(
+        "Incoming session stored"
+    );
+
+    this.delegate?.onCallReceived?.(
+        this.extractInviteCaller(session)
+    );
+
+},
+
                 onCallHangup: () => {
                     this.session = undefined;
                     this.delegate?.onCallHangup && this.delegate?.onCallHangup();
@@ -199,6 +213,12 @@ export class SimpleSoftphone {
         }
 
 inviterInviteOptions = inviterInviteOptions || {};
+
+inviterInviteOptions.sessionDescriptionHandlerOptions = {
+    ...(inviterInviteOptions.sessionDescriptionHandlerOptions || {}),
+    iceGatheringTimeout: 500
+};
+
 inviterInviteOptions.requestDelegate =
     inviterInviteOptions.requestDelegate || {};
 
@@ -250,7 +270,15 @@ return this.sessionManager
         if (!this.session) {
             return Promise.reject(new Error("Session does not exist."));
         }
-        return this.sessionManager.answer(this.session, invitationAcceptOptions);
+
+return this.sessionManager.answer(this.session, {
+    ...invitationAcceptOptions,
+    sessionDescriptionHandlerOptions: {
+        ...(invitationAcceptOptions?.sessionDescriptionHandlerOptions || {}),
+        iceGatheringTimeout: 500
+    }
+});
+
     }
 
     /**
