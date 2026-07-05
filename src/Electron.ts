@@ -1,12 +1,16 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 
 app.commandLine.appendSwitch(
     "ignore-certificate-errors"
 );
 
 import * as path from "node:path";
+import * as keytar from "keytar";
 
 class Electron {
+    private readonly SERVICE =
+    "UnofficialUniFiTalkSoftphone";
+
     private windowInstance: BrowserWindow | null = null;
 
     constructor() {
@@ -34,6 +38,59 @@ class Electron {
     }
 
     private registerListeners(): void {
+	ipcMain.handle(
+            "saveSipPassword",
+            async (_event, password: string) => {
+
+                await keytar.setPassword(
+                    this.SERVICE,
+                    "sipPassword",
+                    password
+                );
+
+                return true;
+            }
+        );
+
+        ipcMain.handle(
+            "getSipPassword",
+            async () => {
+
+                return await keytar.getPassword(
+                    this.SERVICE,
+                    "sipPassword"
+                );
+            }
+        );
+
+
+	ipcMain.handle(
+    	"saveUniFiPassword",
+    		async (_event, password: string) => {
+
+        	await keytar.setPassword(
+            	this.SERVICE,
+            	"unifiPassword",
+            	password
+        	);
+
+	        return true;
+    		}
+	);
+	
+	ipcMain.handle(
+    	"getUniFiPassword",
+    			async () => {
+
+        		return await keytar.getPassword(
+            		this.SERVICE,
+            		"unifiPassword"
+        		);
+    		}
+	);
+
+
+
         console.log("Registering Listeners");
 
         app.whenReady().then(() => {

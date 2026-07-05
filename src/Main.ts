@@ -121,6 +121,23 @@ this.registerClient().then(async () => {
 
     if (realm) {
 
+        const unifiUser =
+            this.getValue("unifiUser");
+
+        // @ts-ignore
+        const unifiPassword =
+            await window.credentials.getUniFiPassword();
+
+        if (unifiUser && unifiPassword) {
+
+            await this.unifiApi.login(
+                realm,
+                unifiUser,
+                unifiPassword
+            );
+
+        }
+
         this.loadContacts();
 
         this.loadCallLog();
@@ -139,11 +156,16 @@ this.registerClient().then(async () => {
      **/
 
 	private async registerClient() {
-    	await this.client.connect(
-      		this.getValue("realm"),
+		
+	        // @ts-ignore
+    		const sipPassword =
+        	await window.credentials.getSipPassword();
+
+		await this.client.connect(
+		this.getValue("realm"),
        		this.getValue("port"),
      		this.getValue("username"),
-	        this.getValue("password"),
+		sipPassword,
 	        (this.getValue("wssMode") == "true")
 	    );
 
@@ -247,15 +269,20 @@ this.registerClient().then(async () => {
 
 
             // Check credentials before saving.
-            this.client.connect(realm, port, username, password, secure).then(value => {
+            this.client.connect(realm, port, username, password, secure).then(async value => {
                 this.setValue("username", username);
                 this.setValue("realm", realm);
-                this.setValue("password", password);
+		
+		// @ts-ignore
+		await window.credentials.saveSipPassword(password);
+	
                 this.setValue("port", port);
                 this.setValue("wssMode", secure);
 		this.setValue("availability", availability);
 		this.setValue("unifiUser", unifiUser);
-		this.setValue("unifiPassword", unifiPassword);
+
+		// @ts-ignore
+		await window.credentials.saveUniFiPassword(unifiPassword);
 
 		this.setValue("redirectNumber",
     			redirectNumber);
@@ -455,12 +482,12 @@ this.unifiApi.login(
 
     /**
      * Checks if the necessary setup values are present in localStorage.
-     * Determines whether the "username", "password", and "realm" keys exist in localStorage and contain non-null values.
+     * Determines whether the "username" and "realm" keys exist in localStorage and contain non-null values.
      *
-     * @return {boolean} Returns true if all required setup values ("username", "password", "realm") are present and not null in localStorage, otherwise false.
+     * @return {boolean} Returns true if all required setup values ("username", "realm") are present and not null in localStorage, otherwise false.
      */
     private needSetup() {
-        return (localStorage.getItem("username") == null || localStorage.getItem("password") == null || localStorage.getItem("realm") == null);
+        return (localStorage.getItem("username") == null || localStorage.getItem("realm") == null);
     }
 
     /**
@@ -470,11 +497,17 @@ this.unifiApi.login(
      * @param {boolean} state - A boolean value to determine whether to show or hide the elements.
      *                          If true, the "setup" element is made visible and the "phone" element is hidden.
      *                         */
-    private setSetup(state: boolean) {
+    private async setSetup(state: boolean) {
         // Update Setup Interface.
         if (state) {
             document.getElementById("usernameField")?.setAttribute("value", this.getValue("username") || "");
-            document.getElementById("passwordField")?.setAttribute("value", this.getValue("password") || "");
+
+	    // @ts-ignore
+	    const sipPassword =
+            await window.credentials.getSipPassword();
+	    document.getElementById("passwordField")
+    	    ?.setAttribute("value", sipPassword || "");
+
             document.getElementById("realmField")?.setAttribute("value", (this.getValue("realm") || "unifi") + (this.getValue("port") != null && this.getValue("port") != "5066" ? `:${this.getValue("port")}` : ""));
 
 	// @ts-ignore
@@ -490,8 +523,11 @@ this.unifiApi.login(
 		this.getValue("unifiUser") || "";
 
 	// @ts-ignore
-		document.getElementById("unifiPasswordField").value =
-    		this.getValue("unifiPassword") || "";
+		const unifiPassword = await window.credentials.getUniFiPassword();
+
+	// @ts-ignore
+		document.getElementById("unifiPasswordField").value = unifiPassword || "";
+
 
             // @ts-ignore
             if (this.getValue("wssMode") == "true") {

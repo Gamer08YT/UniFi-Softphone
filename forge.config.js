@@ -37,9 +37,10 @@ module.exports = {
         },
         {
             name: '@electron-forge/maker-dmg',
-            config: {
-                format: 'ULFO'
-            }
+	    config: {
+	    format: 'ULFO',
+            name: 'UniFiTalkSoftphone'
+	    }
         }
     ]
 };
