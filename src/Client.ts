@@ -190,12 +190,42 @@ export class Client {
 
         // Supply delegate to handle inbound calls (optional)
         this.simpleUser.delegate = {
-	    onCallReceived: async (addr: NameAddrHeader) => {
+onCallReceived: async (addr: NameAddrHeader) => {
 
-    		this.handleIncoming(
-        	addr
-    		);
-	    },
+    const useUnifiPresence =
+        localStorage.getItem(
+            "useUnifiPresence"
+        ) === "true";
+
+    const availability =
+        localStorage.getItem(
+            "availability"
+        );
+
+    console.log(
+        "Incoming call:",
+        availability,
+        useUnifiPresence
+    );
+
+if (
+    !useUnifiPresence &&
+    availability === "dnd"
+) {
+
+    console.log(
+        "Local DND active. Surpressing ringtone."
+    );
+
+    return;
+}
+
+this.handleIncoming(
+    addr
+);
+
+},
+
 
 	    onCallProgress: () => {
 		this.stopSound();            

@@ -275,13 +275,16 @@
                     <input class="form-check-input" type="checkbox" role="switch" id="wssMode">
                     <label class="form-check-label" for="wssMode">Use Secure Websocket (wss://), must be configured in
                         FreeSwitch.</label>
+		</div>
 
-<div class="mb-3">
-    <label for="availabilityField" class="form-label">
+<div class="mb-3 mt-4">
+    <label for="availabilityField"
+           class="form-label">
         Availability
     </label>
 
-    <select class="form-select" id="availabilityField">
+    <select class="form-select"
+            id="availabilityField">
         <option value="available">Available</option>
         <option value="dnd">Do Not Disturb</option>
         <option value="redirect">Redirect</option>
@@ -289,16 +292,35 @@
 </div>
 
 <div class="mb-3">
-    <label for="redirectNumberField" class="form-label">
+    <label for="redirectNumberField"
+           class="form-label">
         Redirect Number
     </label>
 
-    <input
-        type="text"
-        class="form-control"
-        id="redirectNumberField"
-        placeholder="+49123456789">
+    <input type="text"
+           class="form-control"
+           id="redirectNumberField"
+           placeholder="+49123456789">
 </div>
+
+<div class="form-check mb-2 form-switch">
+    <input class="form-check-input"
+           type="checkbox"
+           role="switch"
+           id="useUnifiPresenceField">
+
+    <label class="form-check-label"
+           for="useUnifiPresenceField">
+        Sync availability status to UniFi Talk
+    </label>
+</div>
+
+<div class="form-text mb-3">
+    Requires UniFi Talk write permissions.<br>
+    Availability is stored in UniFi Talk and remains active when the Softphone is offline.
+</div>
+
+
 
 		</div>
                 <div class="alert alert-danger" hidden="hidden" id="connectionFailedAlert" role="alert">

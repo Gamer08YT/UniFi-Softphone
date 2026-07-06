@@ -146,6 +146,13 @@ try {
                 unifiPassword
             );
 
+
+	console.log(
+        "AUTO LOGIN SUCCESS"
+    	);
+
+
+
 } catch (error) {
 
         console.error(
@@ -158,9 +165,21 @@ try {
 
 }
 
-        }
+}
+
+
+console.log(
+    "AUTO LOAD CONTACTS"
+);
+
 
         this.loadContacts();
+
+
+console.log(
+    "AUTO LOAD CALLLOG"
+);
+
 
         this.loadCallLog();
 
@@ -178,10 +197,21 @@ try {
      **/
 
 	private async registerClient() {
-		
+	
+
+    console.log(
+        "REGISTERCLIENT START"
+    );
+	
 	        // @ts-ignore
     		const sipPassword =
         	await window.credentials.getSipPassword();
+
+
+    console.log(
+        "GOT SIP PASSWORD"
+    );
+
 
 		await this.client.connect(
 		this.getValue("realm"),
@@ -191,9 +221,36 @@ try {
 	        (this.getValue("wssMode") == "true")
 	    );
 
+
+    console.log(
+        "CLIENT CONNECT FINISHED"
+    );
+
+setTimeout(async () => {
+
 	    await this.client.setAvailability(
 	        this.getValue("availability") || "available"
 	    );
+
+    console.log(
+        "SET AVAILABILITY FINISHED"
+    );
+
+  } catch (error) {
+
+
+        console.error(
+            "SET AVAILABILITY FAILED"
+        );
+
+        console.error(
+            error
+        );
+
+    }
+
+}, 3000);
+
 
 	}
 
@@ -274,6 +331,11 @@ try {
 	    let redirectNumber =
 	    document.getElementById("redirectNumberField").value;
 
+	    // @ts-ignore
+	    let useUnifiPresence =
+	    document.getElementById("useUnifiPresenceField").checked;
+
+
             console.log(`Secure: ${secure}`);
 
             const split = realm.split(":");
@@ -308,6 +370,8 @@ try {
 
 		this.setValue("redirectNumber",
     			redirectNumber);
+		this.setValue("useUnifiPresence", useUnifiPresence ? "true" : "false");
+
 
 /*		
 this.unifiApi.login(
@@ -541,6 +605,10 @@ this.unifiApi.login(
     		this.getValue("redirectNumber") || "";
 
 	// @ts-ignore
+		document.getElementById("useUnifiPresenceField").checked =
+    		this.getValue("useUnifiPresence") === "true";
+
+	// @ts-ignore
 		document.getElementById("unifiUserField").value =
 		this.getValue("unifiUser") || "";
 
@@ -607,6 +675,12 @@ this.unifiApi.login(
 
 private loadContacts(): void {
 
+
+console.log(
+"loadContacts called"
+);
+
+
     const realm =
         this.getValue("realm");
 
@@ -650,6 +724,10 @@ console.log(
 
 private loadCallLog(): void {
 
+console.log(
+    "loadCallLog called"
+);
+
     this.unifiApi.getUsers()
         .then((users) => {
 
@@ -669,6 +747,11 @@ private loadCallLog(): void {
 
 const availability =
     this.getValue("availability");
+
+const useUnifiPresence =
+    this.getValue(
+        "useUnifiPresence"
+    ) === "true";
 
 console.log(
     "Availability value:",
@@ -692,6 +775,14 @@ if (availability === "redirect") {
 
 const redirectNumber =
     this.getValue("redirectNumber");
+
+if (!useUnifiPresence) {
+
+    console.log(
+        "UniFi availability sync disabled."
+    );
+
+} else {
 
 this.unifiApi.updateUser(
     targetUser.ulp_id,
@@ -730,14 +821,21 @@ this.unifiApi.updateUser(
 
 		}
 
+	}
 
-
+console.log(
+    "Before currentUser check"
+);
 
             if (!currentUser) {
                 throw new Error(
                     "Current user not found"
                 );
             }
+
+console.log(
+    "Before getCallLog"
+);
 
             return this.unifiApi.getCallLog(
                 currentUser.unique_id
