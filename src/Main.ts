@@ -138,48 +138,15 @@ console.log(
 
         if (unifiUser && unifiPassword) {
 
-try {
-
             await this.unifiApi.login(
                 realm,
                 unifiUser,
                 unifiPassword
             );
 
-
-	console.log(
-        "AUTO LOGIN SUCCESS"
-    	);
-
-
-
-} catch (error) {
-
-        console.error(
-            "AUTO LOGIN FAILED:"
-        );
-
-        console.error(
-            error
-        );
-
-}
-
-}
-
-
-console.log(
-    "AUTO LOAD CONTACTS"
-);
-
+	}
 
         this.loadContacts();
-
-
-console.log(
-    "AUTO LOAD CALLLOG"
-);
-
 
         this.loadCallLog();
 
@@ -198,20 +165,9 @@ console.log(
 
 	private async registerClient() {
 	
-
-    console.log(
-        "REGISTERCLIENT START"
-    );
-	
 	        // @ts-ignore
     		const sipPassword =
         	await window.credentials.getSipPassword();
-
-
-    console.log(
-        "GOT SIP PASSWORD"
-    );
-
 
 		await this.client.connect(
 		this.getValue("realm"),
@@ -221,36 +177,11 @@ console.log(
 	        (this.getValue("wssMode") == "true")
 	    );
 
-
-    console.log(
-        "CLIENT CONNECT FINISHED"
-    );
-
 setTimeout(async () => {
-
-  try {
 
 	    await this.client.setAvailability(
 	        this.getValue("availability") || "available"
 	    );
-
-    console.log(
-        "SET AVAILABILITY FINISHED"
-    );
-
-  } catch (error) {
-
-
-        console.error(
-            "SET AVAILABILITY FAILED"
-        );
-
-        console.error(
-            error
-        );
-
-    }
-
 }, 3000);
 
 
@@ -684,12 +615,6 @@ this.unifiApi.login(
 
 private loadContacts(): void {
 
-
-console.log(
-"loadContacts called"
-);
-
-
     const realm =
         this.getValue("realm");
 
@@ -703,14 +628,6 @@ console.log(
 
     this.unifiApi.getContacts()
         .then((contacts) => {
-
-
-console.log(
-    "Contacts loaded:",
-    contacts
-);
-
-
 
             this.renderContacts(
                 contacts
@@ -732,10 +649,6 @@ console.log(
 }
 
 private loadCallLog(): void {
-
-console.log(
-    "loadCallLog called"
-);
 
     this.unifiApi.getUsers()
         .then((users) => {
