@@ -192,29 +192,6 @@ export class Client {
         this.simpleUser.delegate = {
 	    onCallReceived: async (addr: NameAddrHeader) => {
 
-		const availability =
-    			localStorage.getItem(
-        		"availability"
-    		);
-
-    		const redirectNumber =
-        		localStorage.getItem(
-            		"redirectNumber"
-        	);
-
-    		if (
-			availability === "redirect" &&
-        		redirectNumber &&
-        		redirectNumber.trim() !== ""
-    		) {
-
-        		await this.redirect(
-            		redirectNumber
-        		);
-
-        		return;
-    		}
-
     		this.handleIncoming(
         	addr
     		);
@@ -572,21 +549,6 @@ try {
 
         await this.simpleUser?.decline();
     }
-
-    public async redirect(
-    target: string
-    ): Promise<void> {
-
-    console.log(
-        `Redirect call to ${target}`
-    	);
-
-    	await this.simpleUser?.redirect(
-        	target
-    	);
-    }
-
-
 
     /**
      * Plays a sound from the provided URL.

@@ -136,38 +136,9 @@ console.log(
         const unifiPassword =
             await window.credentials.getUniFiPassword();
 
-console.log(
-    "UniFi password loaded:",
-    unifiPassword !== null
-);
-
-console.log(
-    "UniFi password length:",
-    unifiPassword?.length
-);
-
-
         if (unifiUser && unifiPassword) {
 
 try {
-
-
- console.log(
-        "AUTO LOGIN REALM:",
-        realm
-    );
-
-    console.log(
-        "AUTO LOGIN USER:",
-        unifiUser
-    );
-
-    console.log(
-        "AUTO LOGIN PASSWORD LENGTH:",
-        unifiPassword?.length
-    );
-
-
 
             await this.unifiApi.login(
                 realm,
@@ -636,8 +607,6 @@ this.unifiApi.login(
 
 private loadContacts(): void {
 
-console.log("loadContacts()");
-
     const realm =
         this.getValue("realm");
 
@@ -681,10 +650,6 @@ console.log(
 
 private loadCallLog(): void {
 
-console.log("loadCallLog ENTER");
-
-console.log("Calling getUsers()");
-
     this.unifiApi.getUsers()
         .then((users) => {
 
@@ -693,25 +658,13 @@ console.log("Calling getUsers()");
                     (u: any) => u.isSelf === true
                 );
 
-console.log("MARKER 12345");
-
 	    		const targetUser =
     			users.find(
         		(u: any) => u.ext === "0002"
     			);
 
-console.log(
-    "Target user:",
-    JSON.stringify(
-        targetUser,
-        null,
-        2
-    )
-);
 
 		if (targetUser) {
-
-console.log("Calling updateUser...");
 
 
 const availability =

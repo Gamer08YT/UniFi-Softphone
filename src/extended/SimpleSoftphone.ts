@@ -299,26 +299,6 @@ return this.sessionManager.answer(this.session, {
         return this.sessionManager.decline(this.session);
     }
 
-    public redirect(
-    target: string
-	): Promise<void> {
-
-    	console.log(
-        "Redirect requested:",
-        target
-    	);
-
-    		if (!this.invitation) {
-        	return Promise.reject(
-            	new Error(
-                	"Invitation does not exist."
-            	)
-        	);
-    	}
-
-    	return Promise.resolve();
-	}
-
     /**
      * Hold call
      * @remarks

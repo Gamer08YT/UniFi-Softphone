@@ -19,63 +19,7 @@ public setHost(
         password: string
     ): Promise<boolean> {
 
-console.log(
-    "LOGIN CALLED AT",
-    new Date().toISOString()
-);
-
-console.log(
-    "CURRENT CSRF BEFORE LOGIN:",
-    this.csrfToken
-);
-
 	this.host = host;
-
-console.log(
-    "LOGIN HOST:",
-    host
-);
-
-console.log(
-    "LOGIN USER:",
-    username
-);
-
-console.log(
-    "PAGE ORIGIN:",
-    window.location.origin
-);
-
-console.log(
-    "LOGIN REQUEST HEADERS:"
-);
-
-console.log(
-    JSON.stringify(
-        {
-            "Content-Type": "application/json",
-        },
-        null,
-        2
-    )
-);
-
-console.log(
-    "LOGIN REQUEST BODY:"
-);
-
-console.log(
-    JSON.stringify(
-        {
-            username: username,
-            password: password,
-            token: "",
-            rememberMe: false
-        },
-        null,
-        2
-    )
-);
 
 const response = await fetch(
     `https://${host}/api/auth/login`,
@@ -96,10 +40,6 @@ const response = await fetch(
     }
 );
 
-
-console.log(
-    "RESPONSE HEADERS:"
-);
 
 for (const pair of response.headers.entries()) {
 
@@ -134,38 +74,6 @@ console.log(
 
 if (!response.ok) {
 
-    const text =
-        await response.text();
-
-console.error(
-    "LOGIN RESPONSE BODY:"
-);
-
-console.error(
-    text
-);
-
-
-    console.error(
-        "UniFi Login Response:"
-    );
-
-    console.error(
-        text
-    );
-
-    console.error(
-    "Login payload:"
-);
-
-console.error(
-    JSON.stringify({
-    username: username,
-    passwordLength: password.length
-    })
-
-);	
-
     throw new Error(
         `Login failed (${response.status})`
     );
@@ -173,19 +81,6 @@ console.error(
 
 	    this.csrfToken =
             response.headers.get("x-csrf-token") || "";
-
-const loginBody =
-    await response.text();
-
-console.log(
-    "SUCCESS LOGIN BODY:"
-);
-
-console.log(
-    loginBody
-);
-
-
 
         return true;
     }
