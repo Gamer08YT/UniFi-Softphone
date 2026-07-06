@@ -6,6 +6,7 @@ import { Message } from "sip.js/lib/api/message.js";
 import { RegistererRegisterOptions } from "sip.js/lib/api/registerer-register-options.js";
 import { RegistererUnregisterOptions } from "sip.js/lib/api/registerer-unregister-options.js";
 import { Session } from "sip.js/lib/api/session.js";
+import { Invitation } from "sip.js/lib/api/invitation.js";
 import {SimpleSoftphoneDelegate} from "./SimpleSoftphoneDelegate";
 import {SessionManager, SessionManagerOptions, SimpleUserOptions} from "sip.js/lib/platform/web";
 /**
@@ -24,6 +25,7 @@ export class SimpleSoftphone {
     private logger: Logger;
     private options: SimpleUserOptions;
     private session: Session | undefined = undefined;
+    private invitation: Invitation | undefined = undefined;
     private sessionManager: SessionManager;
 
     /**
@@ -55,6 +57,7 @@ export class SimpleSoftphone {
 onCallReceived: (session) => {
 
     this.session = session;
+    this.invitation = session as Invitation;
 
     console.log(
         "Incoming session stored"
@@ -295,6 +298,26 @@ return this.sessionManager.answer(this.session, {
         }
         return this.sessionManager.decline(this.session);
     }
+
+    public redirect(
+    target: string
+	): Promise<void> {
+
+    	console.log(
+        "Redirect requested:",
+        target
+    	);
+
+    		if (!this.invitation) {
+        	return Promise.reject(
+            	new Error(
+                	"Invitation does not exist."
+            	)
+        	);
+    	}
+
+    	return Promise.resolve();
+	}
 
     /**
      * Hold call

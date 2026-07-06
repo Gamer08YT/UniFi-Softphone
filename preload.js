@@ -20,9 +20,25 @@ contextBridge.exposeInMainWorld(
                 password
             ),
 
-        getUniFiPassword: () =>
-            ipcRenderer.invoke(
-                "getUniFiPassword"
-            )
+
+getUniFiPassword: () =>
+    ipcRenderer.invoke(
+        "getUniFiPassword"
+    ),
+
+testUniFiLogin: (
+    host,
+    username,
+    password
+) =>
+    ipcRenderer.invoke(
+        "testUniFiLogin",
+        host,
+        username,
+        password
+    )
+
+
+
     }
 );

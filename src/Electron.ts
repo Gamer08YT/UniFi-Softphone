@@ -1,4 +1,9 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+
+import {
+    app,
+    BrowserWindow,
+    ipcMain
+} from "electron"
 
 app.commandLine.appendSwitch(
     "ignore-certificate-errors"
@@ -90,6 +95,65 @@ class Electron {
 	);
 
 
+ipcMain.handle(
+    "testUniFiLogin",
+    async (
+        _event,
+        host: string,
+        username: string,
+        password: string
+    ) => {
+
+        try {
+
+            const response = await fetch(
+                `https://${host}/api/auth/login`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        username,
+                        password,
+                        token: "",
+                        rememberMe: false
+                    })
+                }
+            );
+
+            const text =
+                await response.text();
+
+            console.log(
+                "MAIN LOGIN STATUS:",
+                response.status
+            );
+
+            console.log(
+                "MAIN LOGIN RESPONSE:",
+                text
+            );
+
+            return {
+                status: response.status,
+                body: text
+            };
+
+        } catch (error) {
+
+            console.error(
+                "MAIN LOGIN ERROR:"
+            );
+
+            console.error(
+                error
+            );
+
+            throw error;
+        }
+    }
+);
 
         console.log("Registering Listeners");
 

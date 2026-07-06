@@ -119,6 +119,14 @@ this.registerClient().then(async () => {
 
     const realm = this.getValue("realm");
 
+
+console.log("Realm:", realm);
+
+console.log(
+    "Page origin:",
+    window.location.origin
+);
+
     if (realm) {
 
         const unifiUser =
@@ -128,13 +136,56 @@ this.registerClient().then(async () => {
         const unifiPassword =
             await window.credentials.getUniFiPassword();
 
+console.log(
+    "UniFi password loaded:",
+    unifiPassword !== null
+);
+
+console.log(
+    "UniFi password length:",
+    unifiPassword?.length
+);
+
+
         if (unifiUser && unifiPassword) {
+
+try {
+
+
+ console.log(
+        "AUTO LOGIN REALM:",
+        realm
+    );
+
+    console.log(
+        "AUTO LOGIN USER:",
+        unifiUser
+    );
+
+    console.log(
+        "AUTO LOGIN PASSWORD LENGTH:",
+        unifiPassword?.length
+    );
+
+
 
             await this.unifiApi.login(
                 realm,
                 unifiUser,
                 unifiPassword
             );
+
+} catch (error) {
+
+        console.error(
+            "AUTO LOGIN FAILED:"
+        );
+
+        console.error(
+            error
+        );
+
+}
 
         }
 
@@ -630,6 +681,10 @@ console.log(
 
 private loadCallLog(): void {
 
+console.log("loadCallLog ENTER");
+
+console.log("Calling getUsers()");
+
     this.unifiApi.getUsers()
         .then((users) => {
 
@@ -637,6 +692,93 @@ private loadCallLog(): void {
                 users.find(
                     (u: any) => u.isSelf === true
                 );
+
+console.log("MARKER 12345");
+
+	    		const targetUser =
+    			users.find(
+        		(u: any) => u.ext === "0002"
+    			);
+
+console.log(
+    "Target user:",
+    JSON.stringify(
+        targetUser,
+        null,
+        2
+    )
+);
+
+		if (targetUser) {
+
+console.log("Calling updateUser...");
+
+
+const availability =
+    this.getValue("availability");
+
+console.log(
+    "Availability value:",
+    availability
+);
+
+console.log(
+    "LocalStorage availability:",
+    localStorage.getItem("availability")
+);
+
+let status = "Available";
+
+if (availability === "dnd") {
+    status = "Do Not Disturb";
+}
+
+if (availability === "redirect") {
+    status = "Redirect";
+}
+
+const redirectNumber =
+    this.getValue("redirectNumber");
+
+this.unifiApi.updateUser(
+    targetUser.ulp_id,
+    {
+        ...targetUser,
+        status: status,
+        redirect: {
+            number: redirectNumber,
+            entity: ""
+        }
+    }
+)
+
+
+    			.then((result) => {
+
+        		console.log(
+            		"Update result:"
+        		);
+
+        		console.log(
+            		result
+        		);
+    			})
+    			.catch((error) => {
+
+       			console.error(
+            		"Update failed:"
+        		);
+
+        		console.error(
+            		error
+        		);
+
+    		});
+
+		}
+
+
+
 
             if (!currentUser) {
                 throw new Error(
