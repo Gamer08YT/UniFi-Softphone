@@ -228,6 +228,8 @@ console.log(
 
 setTimeout(async () => {
 
+  try {
+
 	    await this.client.setAvailability(
 	        this.getValue("availability") || "available"
 	    );
@@ -637,6 +639,13 @@ this.unifiApi.login(
             document.getElementById("phone")?.setAttribute("hidden", "hidden");
         else
             document.getElementById("phone")?.removeAttribute("hidden");
+
+	if (state)
+	    document.getElementById("saveConfig")
+            ?.removeAttribute("hidden");
+	else
+    	    document.getElementById("saveConfig")
+            ?.setAttribute("hidden", "hidden");
 
         console.log(`Setup: ${state}`);
     }
