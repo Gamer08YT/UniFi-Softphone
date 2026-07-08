@@ -2,7 +2,8 @@
 import {
     app,
     BrowserWindow,
-    ipcMain
+    ipcMain,
+    Notification
 } from "electron"
 
 app.commandLine.appendSwitch(
@@ -94,6 +95,36 @@ class Electron {
     		}
 	);
 
+	ipcMain.handle(
+	    "incomingCallNotification",
+	    async (
+	        _event,
+	        caller: string
+	    ) => {
+
+	        const notification =
+	            new Notification({
+	                title: "Eingehender Anruf",
+	                body: caller
+	            });
+
+	        notification.on(
+	            "click",
+	            () => {
+
+       	        	 this.windowInstance?.show();
+        	        this.windowInstance?.focus();
+
+	            }
+        );
+
+        notification.show();
+
+        return true;
+
+    }
+);
+
 
 ipcMain.handle(
     "testUniFiLogin",
@@ -159,6 +190,17 @@ ipcMain.handle(
 
         app.whenReady().then(() => {
             this.createWindow();
+
+	    if (
+	        Notification.isSupported()
+	    ) {
+
+	        console.log(
+	            "Notifications supported"
+	        );
+
+	    }
+
 
             app.on("activate", () => {
                 if (BrowserWindow.getAllWindows().length === 0) {

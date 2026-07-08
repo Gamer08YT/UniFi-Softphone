@@ -38,7 +38,14 @@ testUniFiLogin: (
         password
     )
 
-
+,
+        incomingCallNotification: (
+            caller
+        ) =>
+            ipcRenderer.invoke(
+                "incomingCallNotification",
+                caller
+            )
 
     }
 );

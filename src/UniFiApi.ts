@@ -204,6 +204,93 @@ return await response.json();
     return await response.json();
 }
 
+public async getVoicemail(
+    uuid: string
+): Promise<any> {
+
+    const response = await fetch(
+        `https://${this.host}/proxy/talk/api/voicemail/data/${uuid}`,
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    if (!response.ok) {
+
+        throw new Error(
+            `Voicemail failed (${response.status})`
+        );
+
+    }
+
+    return await response.json();
+
+}
+
+public async getVoicemailRecording(
+    path: string
+): Promise<any> {
+
+const response = await fetch(
+    `https://${this.host}/proxy/talk/api/voicemail/recording`,
+    {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "x-csrf-token": this.csrfToken
+        },
+        credentials: "include",
+        body: JSON.stringify({
+            path: path
+        })
+    }
+);
+    if (!response.ok) {
+
+        throw new Error(
+            `Voicemail recording failed (${response.status})`
+        );
+
+    }
+console.log(
+    "Recording status:",
+    response.status
+);
+
+console.log(
+    "Recording content type:",
+    response.headers.get(
+        "content-type"
+    )
+);
+    return response;
+}
+
+
+public async getFullCallLog(): Promise<any> {
+
+    const response = await fetch(
+        `https://${this.host}/proxy/talk/api/call_log?page=0&items_per_page=25&sort_key=time&sort_order=desc&from_time=0&to_time=${Date.now()}&filter[entity]={"type":"all","id":""}`,
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    if (!response.ok) {
+
+        throw new Error(
+            `Full call log failed (${response.status})`
+        );
+
+    }
+
+    return await response.json();
+
+}
+
+
 public async updateUser(
     ulpId: string,
     data: any

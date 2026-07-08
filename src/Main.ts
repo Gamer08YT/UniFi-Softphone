@@ -8,7 +8,7 @@ class Main {
     private client = new Client();
     private unifiApi = new UniFiApi();
     private contactsOpen = false;
-
+    private statusOpen = true;
     private digitsEl = document.getElementById('digits') as HTMLElement;
     private carrierEl = document.getElementById('carrier') as HTMLElement;
     private keys = Array.from(document.querySelectorAll('.key')) as HTMLElement[];
@@ -23,11 +23,23 @@ class Main {
     private contactsToggle = document.getElementById("contactsToggle") as HTMLElement;
     private callLogContainer = document.getElementById("callLogContainer") as HTMLElement;
     private callLogToggle = document.getElementById("callLogToggle") as HTMLElement;
+    private statusContainer = document.getElementById("statusContainer") as HTMLElement;
+    private phoneStatus = document.getElementById("phoneStatus") as HTMLElement;
+    private syncStatus = document.getElementById("syncStatus") as HTMLElement;
+    private availabilityStatus = document.getElementById("availabilityStatus") as HTMLElement;
+    private statusToggle = document.getElementById("statusToggle") as HTMLElement;
     private callLogOpen = false;
-
+    private contacts: any[] = [];
     private number: string = '';
     private deleteInterval: number | null = null;
     private timer: number | undefined;
+    private longPressDigit: string | null = null;
+    private users: any[] = [];
+    private redirectTypeNumber = document.getElementById("redirectTypeNumber") as HTMLInputElement;
+    private redirectTypeContact = document.getElementById("redirectTypeContact") as HTMLInputElement;
+    private redirectContactField = document.getElementById("redirectContactField") as HTMLSelectElement;
+    private redirectNumberField = document.getElementById("redirectNumberField") as HTMLInputElement;
+    private held = false;
 
     private LONG_CLICK_DURATION = 1000;
 
@@ -37,14 +49,96 @@ class Main {
      * @return {void} No return value.
      */
     constructor() {
-        console.info(`%cStarting Unofficial UniFi Softphone by Jan Heil (www.byte-store.de)!`, "font-family:system-ui;font-size:1rem;-webkit-text-stroke: 1px black;font-weight:bold");
+        console.info(`%cStarting Unofficial UniFi Softphone by Jan Heil (www.byte-store.de) and Thomas Schmidbaur (www.lautsound.de)!`, "font-family:system-ui;font-size:1rem;-webkit-text-stroke: 1px black;font-weight:bold");
         console.info(`Bundled Frontend Version: ${version}`);
 
         // Prepare UI and VOIP Client.
         this.registerListeners();
 
+	if (
+	    "Notification" in window
+	) {
+
+	    console.log(
+	        "Notification permission:",
+	        Notification.permission
+	    );
+
+	    if (
+	        Notification.permission ===
+	        "default"
+	    ) {
+
+	        Notification.requestPermission()
+	            .then(
+	                (permission) => {
+
+	                    console.log(
+	                        "Notification permission result:",
+	                        permission
+	                    );
+	
+	                }
+	            );
+	
+	    }
+	
+	}
+
+	this.redirectContactField.disabled =
+	    true;
+
+	window.addEventListener(
+	    "sip-status",
+	    (event: any) => {
+
+	        const online =
+	            event.detail.online;
+
+	        if (online) {
+
+	            this.phoneStatus.innerText =
+	                "🟢 Telefon online";
+
+	        } else {
+
+	            this.phoneStatus.innerText =
+	                "🔴 Telefon offline";
+
+	        }
+
+	    }
+	);
+
         // Handle TLS.
         this.handleSecure();
+
+	this.statusToggle.addEventListener("click",
+	    () => {
+
+	        this.statusOpen =
+	            !this.statusOpen;
+
+	        if (this.statusOpen) {
+
+	            this.statusContainer.style.display =
+	                "block";
+
+	            this.statusToggle.innerText =
+	                "▼ Status";
+
+	        } else {
+
+	            this.statusContainer.style.display =
+	                "none";
+
+	            this.statusToggle.innerText =
+	                "▶ Status";
+
+	        }
+
+		}
+	);
 
 	this.contactsToggle.addEventListener(
         	    "click",
@@ -120,13 +214,6 @@ this.registerClient().then(async () => {
     const realm = this.getValue("realm");
 
 
-console.log("Realm:", realm);
-
-console.log(
-    "Page origin:",
-    window.location.origin
-);
-
     if (realm) {
 
         const unifiUser =
@@ -137,6 +224,8 @@ console.log(
             await window.credentials.getUniFiPassword();
 
         if (unifiUser && unifiPassword) {
+    
+try {
 
             await this.unifiApi.login(
                 realm,
@@ -144,12 +233,36 @@ console.log(
                 unifiPassword
             );
 
-	}
+} catch (error) {
 
+
+        console.error(
+            "AUTO LOGIN FAILED:"
+        );
+
+        console.error(
+            error
+        );
+
+
+	}
+    }
         this.loadContacts();
+
+	this.updateStatusDisplay();
 
         this.loadCallLog();
 
+	this.updateStatusDisplay();
+
+	setInterval(
+	    () => {
+
+		this.loadCallLog();	
+
+	    },
+	    30000
+	);
     }
 
 });
@@ -235,6 +348,184 @@ setTimeout(async () => {
             this.setSetup(true);
         });
 
+
+document
+    .getElementById(
+        "useUnifiPresenceField"
+    )
+    ?.addEventListener(
+        "change",
+        (event: any) => {
+
+            const status =
+                document.getElementById(
+                    "useUnifiPresenceStatus"
+                );
+
+            if (event.target.checked) {
+
+                status!.textContent =
+                    "✓ Status will be synchronized to UniFi Talk";
+
+                status!.className =
+                    "text-success small mb-2";
+
+            } else {
+
+                status!.textContent =
+                    "✕ Status is stored locally only";
+
+                status!.className =
+                    "text-danger small mb-2";
+
+            }
+
+        }
+    );
+
+document
+    .getElementById(
+        "wssMode"
+    )
+    ?.addEventListener(
+        "change",
+        (event: any) => {
+
+            const status =
+                document.getElementById(
+                    "wssModeStatus"
+                );
+
+            if (event.target.checked) {
+
+                status!.textContent =
+                    "✓ Secure WebSocket (wss://d";
+
+                status!.className =
+                    "text-success small mb-2";
+
+            } else {
+
+                status!.textContent =
+                    "✕Standarde WebSocket (ws://)";
+
+                status!.className =
+                    "text-danger small mb-2";
+
+            }
+
+        }
+    );
+
+this.redirectTypeNumber.addEventListener(
+    "change",
+    () => {
+
+
+
+        console.log(
+            "Telefonnummer gewählt"
+        );
+
+
+        this.redirectNumberField.disabled =
+            false;
+
+        this.redirectContactField.disabled =
+            true;
+
+    }
+);
+
+this.redirectTypeContact.addEventListener(
+    "change",
+    () => {
+
+        this.redirectNumberField.disabled =
+            true;
+
+        this.redirectContactField.disabled =
+            false;
+
+    }
+);
+
+
+document
+    .getElementById(
+        "muteButton"
+    )
+    ?.addEventListener(
+        "click",
+        () => {
+
+            const button =
+                document.getElementById(
+                    "muteButton"
+                ) as HTMLButtonElement;
+
+            if (
+                this.client.isMuted()
+            ) {
+
+                this.client.unmute();
+
+                button.textContent =
+                    "Stumm";
+
+            } else {
+
+                this.client.mute();
+
+                button.textContent =
+                    "Stumm aus";
+
+            }
+
+        }
+    );
+
+
+document
+    .getElementById(
+        "holdButton"
+    )
+    ?.addEventListener(
+        "click",
+        async () => {
+
+            const button =
+                document.getElementById(
+                    "holdButton"
+                ) as HTMLButtonElement;
+
+            if (
+                this.held
+            ) {
+
+                await this.client.unhold();
+
+                this.held =
+                    false;
+
+                button.textContent =
+                    "Halten";
+
+            } else {
+
+                await this.client.hold();
+
+                this.held =
+                    true;
+
+                button.textContent =
+                    "Fortsetzen";
+
+            }
+
+        }
+    );
+
         // Add Setup Listener.
         this.setupSave.addEventListener('click', () => {
             // @ts-ignore
@@ -261,8 +552,13 @@ setTimeout(async () => {
 	    document.getElementById("unifiPasswordField").value;
 
 	    // @ts-ignore
-	    let redirectNumber =
-	    document.getElementById("redirectNumberField").value;
+	    let redirectNumber = this.redirectTypeNumber.checked
+		    ? (
+	                document.getElementById(
+             	        "redirectNumberField"
+            	 	) as HTMLInputElement
+        	).value
+        	: this.redirectContactField.value;
 
 	    // @ts-ignore
 	    let useUnifiPresence =
@@ -287,6 +583,16 @@ setTimeout(async () => {
 
             // Check credentials before saving.
             this.client.connect(realm, port, username, password, secure).then(async value => {
+
+		    document
+		        .getElementById(
+		            "connectionFailedAlert"
+		        )
+		        ?.setAttribute(
+            		"hidden",
+            		"hidden"
+        		);
+
                 this.setValue("username", username);
                 this.setValue("realm", realm);
 		
@@ -296,45 +602,24 @@ setTimeout(async () => {
                 this.setValue("port", port);
                 this.setValue("wssMode", secure);
 		this.setValue("availability", availability);
+		this.updateStatusDisplay();
 		this.setValue("unifiUser", unifiUser);
 
 		// @ts-ignore
 		await window.credentials.saveUniFiPassword(unifiPassword);
 
-		this.setValue("redirectNumber",
-    			redirectNumber);
+		this.setValue("redirectNumber",	redirectNumber);
+
+		this.setValue ("redirectType",
+		this.redirectTypeContact.checked
+	        	? "contact"
+		        : "number"
+		);
+
+		this.updateStatusDisplay();
+
 		this.setValue("useUnifiPresence", useUnifiPresence ? "true" : "false");
-
-
-/*		
-this.unifiApi.login(
-    realm,
-    unifiUser,
-    unifiPassword
-).then(async () => {
-
-    console.log("UniFi Login successful");
-
-    const contacts =
-        await this.unifiApi.getContacts();
-
-    console.log(
-        "UniFi Contacts:"
-    );
-
-    console.log(
-        contacts
-    );
-
-}).catch(error => {
-
-    console.error(
-        `UniFi Login failed: ${error}`
-    );
-
-});
-*/
-
+		this.updateStatusDisplay();
 
 	this.loadContacts();
 
@@ -366,11 +651,13 @@ this.unifiApi.login(
                 }
             });
 
-            if (digit == "1") {
+            if (digit == "1" ||
+	    digit == "0"
+	    ) {
                 // Add Long Press Listener (Voicemail).
                 k.addEventListener('mousedown', (e) => {
                     e.preventDefault();
-                    this.startPress();
+                    this.startPress(digit);
                 });
 
                 k.addEventListener('mouseup', () => {
@@ -384,7 +671,7 @@ this.unifiApi.login(
                 // Touch-Events for Mobile Devices.
                 k.addEventListener('touchstart', (e) => {
                     e.preventDefault();
-                    this.startPress();
+                    this.startPress(digit);
                 });
 
                 k.addEventListener('touchend', () => {
@@ -469,29 +756,59 @@ this.unifiApi.login(
      *
      * @return {void}
      */
-    private startPress() {
-        console.log(`Long Press waiting: ${this.number}`);
 
-        // Start Press Count Timer.
-        // @ts-ignore
-        this.timer = setTimeout(() => {
-            this.onLongClick();
-        }, this.LONG_CLICK_DURATION);
-    }
+    private startPress(
+    digit: string
+	) {
+
+	    this.longPressDigit =
+        	digit;
+
+	    console.log(
+        	`Long Press waiting: ${digit}`
+	    );
+
+    // @ts-ignore
+    this.timer = setTimeout(() => {
+        this.onLongClick();
+    }, this.LONG_CLICK_DURATION);
+
+}
+
 
     /**
      * Handles the long click event by setting the caller number to a predefined value
-     * and initiating a call to the voicemail service.
+     * and initiating a call to the voicemail service or selecting + on long clickung 0.
      *
      * @return {void} This method does not return any value.
      */
-    private onLongClick() {
-        // Set Caller Number.
-        this.client.setDisplayNumber("*86");
 
-        // Call Voicemail.
-        this.client.callVoicemail();
-    }
+    private onLongClick() {
+
+	    if (this.longPressDigit === "1") {
+
+	        this.client.setDisplayNumber(
+         	   "*86"
+	        );
+
+	        this.client.callVoicemail();
+
+	        return;
+
+	    }
+
+	    if (this.longPressDigit === "0") {
+
+	        this.number =
+	            this.number.slice(0, -1);
+
+	        this.number += "+";
+
+        	this.render();
+
+	    }
+
+	}
 
     private cancelPress() {
         console.log(`Long Press cancelled`);
@@ -537,9 +854,70 @@ this.unifiApi.login(
 		document.getElementById("redirectNumberField").value =
     		this.getValue("redirectNumber") || "";
 
+		const redirectType =
+		this.getValue(
+	        "redirectType"
+		);
+
+		if (redirectType === "contact") {
+
+		    this.redirectTypeContact.checked =
+		        true;
+
+		    this.redirectTypeNumber.checked =
+		        false;
+
+		    this.redirectContactField.disabled =
+		        false;
+
+		    this.redirectNumberField.disabled =
+		        true;
+
+		} else {
+
+		    this.redirectTypeNumber.checked =
+		        true;
+
+		    this.redirectTypeContact.checked =
+		        false;
+
+		    this.redirectContactField.disabled =
+		        true;
+
+		    this.redirectNumberField.disabled =
+		        false;
+
+		}
+
+
+
 	// @ts-ignore
 		document.getElementById("useUnifiPresenceField").checked =
     		this.getValue("useUnifiPresence") === "true";
+
+		const syncStatus = document.getElementById("useUnifiPresenceStatus"
+    		);
+
+		if (
+    		this.getValue("useUnifiPresence")
+    		=== "true"
+		) {
+
+    			syncStatus!.textContent =
+        		"✓ Status will be synchronized to UniFi Talk";
+
+    			syncStatus!.className =
+        		"text-success small mb-2";
+
+		} else {
+
+    			syncStatus!.textContent =
+        		"✕ Status is stored locally only";
+
+    			syncStatus!.className =
+        		"text-danger small mb-2";
+
+		}
 
 	// @ts-ignore
 		document.getElementById("unifiUserField").value =
@@ -558,6 +936,31 @@ this.unifiApi.login(
             } else {
                 document.getElementById('wssMode')?.removeAttribute("checked");
             }
+
+const wssStatus =
+    document.getElementById(
+        "wssModeStatus"
+    );
+
+if (this.getValue("wssMode") == "true") {
+
+    wssStatus!.textContent =
+        "✓ Secure WebSocket (wss://d";
+
+    wssStatus!.className =
+        "text-success small mb-2";
+
+} else {
+
+    wssStatus!.textContent =
+        "✕Standard Websockett (ws://)";
+
+    wssStatus!.className =
+        "text-danger small mb-2";
+
+}
+
+
 
         }
 
@@ -612,6 +1015,79 @@ this.unifiApi.login(
      */
 
 
+private updateStatusDisplay(): void {
+
+    const availability =
+        this.getValue(
+            "availability"
+        );
+
+    const useUnifiPresence =
+    	this.getValue(
+            "useUnifiPresence"
+    	) === "true";
+
+    const redirectNumber =
+        this.getValue(
+            "redirectNumber"
+        );
+
+    if (availability === "available") {
+
+        this.availabilityStatus.innerText =
+            "👤 Verfügbar";
+
+    }
+
+    if (availability === "dnd") {
+
+        this.availabilityStatus.innerText =
+            "👤 Nicht stören";
+
+    }
+
+	const redirectDisplayName =
+	    this.resolveContactName(
+	        redirectNumber
+	    );
+
+    if (availability === "redirect") {
+
+        this.availabilityStatus.innerText =
+            `👤 Rufumleitung:\n ${redirectDisplayName}`;
+
+    }
+
+	const online =  document
+        .getElementById("call")
+        ?.hasAttribute("disabled")
+        === false;
+
+	if (useUnifiPresence) {
+
+	    this.syncStatus.innerText =
+        	"🟢 UniFi Server Sync";
+
+	} else {
+
+	    this.syncStatus.innerText =
+        	"⚪ UniFi Server Sync";
+
+	}
+
+	if (online) {
+
+	    this.phoneStatus.innerText =
+	        "🟢 Telefon online";
+
+	} else {
+
+	    this.phoneStatus.innerText =
+	        "🔴 Telefon offline";
+
+	}
+}
+
 
 private loadContacts(): void {
 
@@ -628,6 +1104,60 @@ private loadContacts(): void {
 
     this.unifiApi.getContacts()
         .then((contacts) => {
+
+        this.contacts =
+	    contacts;
+
+	this.redirectContactField.innerHTML =
+	    "";
+
+	contacts.forEach(
+	    (contact: any) => {
+
+	        const option =
+	            document.createElement(
+	                "option"
+	            );
+
+	        const fullName =
+	            `${contact.first_name ?? ""} ${contact.last_name ?? ""}`.trim();
+
+	        option.text =
+	            fullName;
+
+	        option.value =
+	            contact.phone_numbers?.[0]?.did ?? "";
+
+	        this.redirectContactField
+	            .appendChild(
+	                option
+	            );
+	
+	    }
+	);
+
+	const redirectNumber =
+	    this.getValue(
+	        "redirectNumber"
+	    );
+
+	if (redirectNumber) {
+
+	    this.redirectContactField.value =
+	        redirectNumber;
+
+	}
+
+	this.updateStatusDisplay();
+
+console.log(
+    "First contact:"
+);
+
+console.log(
+    contacts[0]
+);
+
 
             this.renderContacts(
                 contacts
@@ -648,10 +1178,66 @@ private loadContacts(): void {
 
 }
 
+private resolveContactName(
+    number: string
+): string {
+
+    const contact =
+        this.contacts.find(
+            (contact: any) => {
+
+                if (
+                    !contact.phone_numbers
+                ) {
+
+                    return false;
+
+                }
+
+                return contact.phone_numbers.some(
+                    (phone: any) =>
+                        phone.did === number
+                );
+
+            }
+        );
+
+    if (contact) {
+
+        const fullName =
+            `${contact.first_name ?? ""} ${contact.last_name ?? ""}`.trim();
+
+        return fullName;
+
+    }
+
+const user =
+    this.users.find(
+        (user: any) =>
+            user.ext === number
+    );
+
+if (user) {
+
+    const name =
+        user.full_name ||
+        user.username ||
+        number;
+
+    return name;
+
+}
+
+    return number;
+
+}
+
 private loadCallLog(): void {
 
     this.unifiApi.getUsers()
         .then((users) => {
+
+	    this.users = users;
 
             const currentUser =
                 users.find(
@@ -659,10 +1245,7 @@ private loadCallLog(): void {
                 );
 
 	    		const targetUser =
-    			users.find(
-        		(u: any) => u.ext === "0002"
-    			);
-
+    			currentUser;
 
 		if (targetUser) {
 
@@ -720,6 +1303,10 @@ this.unifiApi.updateUser(
 
 
     			.then((result) => {
+			
+			this.syncStatus.innerText =
+			    "🟢 UniFi Server Sync";
+
 
         		console.log(
             		"Update result:"
@@ -735,6 +1322,10 @@ this.unifiApi.updateUser(
             		"Update failed:"
         		);
 
+			
+			this.syncStatus.innerText =
+		        "🔴 UniFi Server Sync";
+
         		console.error(
             		error
         		);
@@ -745,19 +1336,11 @@ this.unifiApi.updateUser(
 
 	}
 
-console.log(
-    "Before currentUser check"
-);
-
             if (!currentUser) {
                 throw new Error(
                     "Current user not found"
                 );
             }
-
-console.log(
-    "Before getCallLog"
-);
 
             return this.unifiApi.getCallLog(
                 currentUser.unique_id
@@ -781,7 +1364,14 @@ console.log(
 );
 
 
+console.log(
+    "Number of calls:",
+    data.calls?.length
+);
 
+console.log(
+    data
+);
 
 
 	this.renderCallLog(
@@ -806,8 +1396,25 @@ private renderCallLog(
 
     data.calls.forEach((call: any) => {
 
-        const number =
-            call.to || call.from;
+
+	const myExtension =
+	    this.getValue(
+        	"username"
+    	);
+
+	const outgoing =
+    	    call.from === myExtension;
+
+	
+	const number =
+	    call.from === myExtension
+        	? call.to
+        	: call.from;
+
+	const displayName =
+	    this.resolveContactName(
+	        number
+	    );
 
         const div =
             document.createElement("div");
@@ -844,45 +1451,168 @@ private renderCallLog(
 	        .padStart(2, "0")}`;
 
 
+	let icon = outgoing
+	    ? "📤"
+	    : "📥";
 
-	
-	let icon = "📥";
-	let color = "#4caf50";
+	let color = outgoing
+	    ? "#4da3ff"
+	    : "#4caf50";
 
-		if (call.direction === "out") {
+	if (call.status === "cancelled") {
 
-		    icon = "📤";
-    		    color = "#4da3ff";
+	    if (outgoing) {
 
-		}
+	        icon = "📤";
+	        color = "#ff9800";
 
-		if (call.status !== "accepted") {
+	    } else {
 
-		    icon = "❌";
-		    color = "#ff5252";
+	        icon = "❌";
+	        color = "#ff5252";
 
-		}
+	    }
 
-	div.innerHTML = `
-		<div
-    			style="
-        		color:${color};
-        		font-weight:bold;
-    			">
-    			${icon}
-    			${number}
-		</div>
-    		<div
-        		style="
-            		font-size:0.8rem;
-            		opacity:0.7;
-            		margin-left:22px;
-       		 ">
-		        ${formattedDate}
-        		${formattedTime} Uhr
-			<br>Dauer: ${formattedDuration}
-    		</div>
-		`;
+	}
+
+
+	if (call.status === "voicemail") {
+
+	    console.log(
+	        "Voicemail call:",
+	        call
+	    );
+
+	}
+
+div.innerHTML = `
+
+<div class="call-entry-main">
+
+    <div
+        style="
+            color:${color};
+            font-weight:bold;
+        ">
+        ${icon}
+        ${displayName}
+    </div>
+
+    <div
+        style="
+            font-size:0.8rem;
+            opacity:0.7;
+            margin-left:22px;
+        ">
+        ${formattedDate}
+        ${formattedTime} Uhr
+	${call.status === "accepted"
+	    ? `<br>Dauer: ${formattedDuration}`
+	    : ""}
+
+    </div>
+
+</div>
+
+
+${call.status === "voicemail" ? `
+    <div
+        class="voicemail-link"
+        data-uuid="${call.uuid}"
+    >
+        <div>
+            📬 Voicemail
+        </div>
+
+        <div class="voicemail-duration">
+            Dauer: ${formattedDuration} Minuten
+        </div>
+    </div>
+` : ""}
+
+`;
+
+
+const voicemailLink =
+    div.querySelector(
+        ".voicemail-link"
+    ) as HTMLElement | null;
+
+voicemailLink?.addEventListener(
+    "click",
+    async (event) => {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        const uuid =
+            voicemailLink.dataset.uuid;
+
+        console.log(
+            "Loading voicemail:",
+            uuid
+        );
+
+        const voicemail =
+            await this.unifiApi.getVoicemail(
+                uuid!
+            );
+
+        console.log(
+            "Voicemail data:"
+        );
+
+
+console.log(
+    "Voicemail read_at:",
+    voicemail.read_at
+);
+
+
+
+	const recording =
+	    await this.unifiApi
+		        .getVoicemailRecording(
+        		    voicemail.file_path
+	        );
+
+		console.log(
+	    	"Recording response:"
+		);	
+
+		console.log(
+		recording
+		);
+
+        console.log(
+            voicemail
+        );
+
+
+const blob =
+    await recording.blob();
+
+console.log(
+    "Blob:",
+    blob
+);
+
+const audioUrl =
+    URL.createObjectURL(
+        blob
+    );
+
+const audio =
+    new Audio(
+        audioUrl
+    );
+
+audio.play();
+
+
+
+    }
+);
 
 
         div.addEventListener(

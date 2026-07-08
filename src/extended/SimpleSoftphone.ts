@@ -47,6 +47,7 @@ export class SimpleSoftphone {
 
             aor: this.options.aor,
             delegate: {
+
                 onCallAnswered: () => this.delegate?.onCallAnswered?.(),
 		onCallCreated: (session: Session) => {
     			this.session = session;
@@ -58,6 +59,13 @@ onCallReceived: (session) => {
 
     this.session = session;
     this.invitation = session as Invitation;
+
+console.log(
+    "Session methods:",
+    Object.getOwnPropertyNames(
+        Object.getPrototypeOf(session)
+    )
+);
 
     console.log(
         "Incoming session stored"
@@ -81,7 +89,7 @@ onCallReceived: (session) => {
                 onServerConnect: () => this.delegate?.onServerConnect?.(),
                 onServerDisconnect: () => this.delegate?.onServerDisconnect?.()
             },
-            maxSimultaneousSessions: 1,
+            maxSimultaneousSessions: 2,
             media: this.options.media,
             reconnectionAttempts: this.options.reconnectionAttempts,
             reconnectionDelay: this.options.reconnectionDelay,
@@ -94,6 +102,16 @@ onCallReceived: (session) => {
 
         // Use the SIP.js logger
         this.logger = this.sessionManager.userAgent.getLogger("sip.SimpleUser");
+
+console.log(
+    "UserAgent methods:",
+    Object.getOwnPropertyNames(
+        Object.getPrototypeOf(
+            this.sessionManager.userAgent
+        )
+    )
+);
+
     }
 
     /**
@@ -299,46 +317,47 @@ return this.sessionManager.answer(this.session, {
         return this.sessionManager.decline(this.session);
     }
 
-    /**
-     * Hold call
-     * @remarks
-     * Send a re-INVITE with new offer indicating "hold".
-     * Resolves when the re-INVITE request is sent, otherwise rejects.
-     * Use `onCallHold` delegate method to determine if request is accepted or rejected.
-     * See: https://tools.ietf.org/html/rfc6337
-     */
-    public hold(): Promise<void> {
-        this.logger.log(`[${this.id}] holding session...`);
-        if (!this.session) {
-            return Promise.reject(new Error("Session does not exist."));
+        /**
+         * Hold call
+         * @remarks
+         * Send a re-INVITE with new offer indicating "hold".
+         * Resolves when the re-INVITE request is sent, otherwise rejects.
+         * Use `onCallHold` delegate method to determine if request is accepted or rejected.
+         * See: https://tools.ietf.org/html/rfc6337
+         */
+        public hold(): Promise<void> {
+            this.logger.log(`[${this.id}] holding session...`);
+            if (!this.session) {
+                return Promise.reject(new Error("Session does not exist."));
+            }
+            return this.sessionManager.hold(this.session);
         }
-        return this.sessionManager.hold(this.session);
-    }
 
-    /**
-     * Unhold call.
-     * @remarks
-     * Send a re-INVITE with new offer indicating "unhold".
-     * Resolves when the re-INVITE request is sent, otherwise rejects.
-     * Use `onCallHold` delegate method to determine if request is accepted or rejected.
-     * See: https://tools.ietf.org/html/rfc6337
-     */
-    public unhold(): Promise<void> {
-        this.logger.log(`[${this.id}] unholding session...`);
-        if (!this.session) {
-            return Promise.reject(new Error("Session does not exist."));
+        /**
+         * Unhold call.
+         * @remarks
+         * Send a re-INVITE with new offer indicating "unhold".
+         * Resolves when the re-INVITE request is sent, otherwise rejects.
+         * Use `onCallHold` delegate method to determine if request is accepted or rejected.
+         * See: https://tools.ietf.org/html/rfc6337
+         */
+        public unhold(): Promise<void> {
+            this.logger.log(`[${this.id}] unholding session...`);
+            if (!this.session) {
+                return Promise.reject(new Error("Session does not exist."));
+            }
+            return this.sessionManager.unhold(this.session);
         }
-        return this.sessionManager.unhold(this.session);
-    }
 
-    /**
-     * Hold state.
-     * @remarks
-     * True if session is on hold.
-     */
-    public isHeld(): boolean {
-        return this.session ? this.sessionManager.isHeld(this.session) : false;
-    }
+        /**
+         * Hold state.
+         * @remarks
+         * True if session is on hold.
+         */
+
+        public isHeld(): boolean {
+            return this.session ? this.sessionManager.isHeld(this.session) : false;
+        }
 
     /**
      * Mute call.

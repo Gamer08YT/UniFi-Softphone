@@ -13,6 +13,8 @@ export class Client {
     // Store User Instance.
     private simpleUser: SimpleSoftphone | undefined;
 
+    private muted = false;
+
     // Store Realm Hostname.
     private realm: string = "unifi";
     private callState: boolean = false;
@@ -161,6 +163,13 @@ export class Client {
 
         const options: SimpleUserOptions = {
             aor: this.getAOR(realm, username),
+		
+	    sendDTMFUsingSessionDescriptionHandler: true,
+
+	    reconnectionAttempts: 999999,
+
+	    reconnectionDelay: 4,
+
             media: {
                 constraints: {
                     audio: true,
@@ -202,23 +211,28 @@ onCallReceived: async (addr: NameAddrHeader) => {
             "availability"
         );
 
-    console.log(
-        "Incoming call:",
-        availability,
-        useUnifiPresence
-    );
-
 if (
     !useUnifiPresence &&
     availability === "dnd"
 ) {
 
-    console.log(
-        "Local DND active. Surpressing ringtone."
-    );
-
     return;
 }
+
+if (this.simpleUser.invitation) {
+
+
+}
+
+
+// @ts-ignore
+window.credentials
+    .incomingCallNotification(
+        addr.displayName ||
+        addr.uri.user ||
+        "Unbekannter Anrufer"
+    );
+
 
 this.handleIncoming(
     addr
@@ -243,8 +257,20 @@ this.handleIncoming(
     	        this.setCallState(
                 "connected"
                 );
+	    },
 
-            },
+	    onMessageReceived: (message: string) => {
+
+    	    console.log(
+               "MESSAGE RECEIVED:"
+    	    );
+
+    	    console.log(
+            message
+    	    );
+
+	    },
+
             onCallHangup: () => {
             this.stopSound();
             this.setCallState(null);
@@ -409,6 +435,17 @@ this.handleIncoming(
     private setUIState(state: boolean): void {
         console.log(`Set UI State: ${state}`);
 
+	window.dispatchEvent(
+	    new CustomEvent(
+	        "sip-status",
+	        {
+	            detail: {
+	                online: state
+	            }
+	        }
+	    )
+	);
+
         // Disable Call Button if not connected.
         if (!state)
             document.getElementById("call")?.setAttribute("disabled", "disabled");
@@ -479,34 +516,6 @@ this.handleIncoming(
         // Stop Incoming Sound.
         this.stopSound();
 
-console.log(
-    "Current session:",
-    (this.simpleUser as any).session
-);
-
-const session =
-    (this.simpleUser as any).session;
-
-console.log(
-    "Session state:",
-    session?._state
-);
-
-console.log(
-    "Session canceled:",
-    session?.isCanceled
-);
-
-console.log(
-    "Session disposed:",
-    session?.disposed
-);
-
-console.log(
-    "PeerConnection:",
-    session?._sessionDescriptionHandler?._peerConnection
-);
-
 
 try {
 
@@ -543,7 +552,6 @@ try {
 }
 
 
-
     await this.simpleUser?.answer();
 
     console.log(
@@ -561,6 +569,43 @@ try {
     );
 
 }
+}
+
+
+public async hold(): Promise<void> {
+
+    await this.simpleUser?.hold();
+
+}
+
+public async unhold(): Promise<void> {
+
+    await this.simpleUser?.unhold();
+
+}
+
+public mute(): void {
+
+    this.simpleUser?.mute();
+
+    this.muted =
+        true;
+
+}
+
+public unmute(): void {
+
+    this.simpleUser?.unmute();
+
+    this.muted =
+        false;
+
+}
+
+public isMuted(): boolean {
+
+    return this.muted;
+
 }
 
     /**

@@ -1,10 +1,10 @@
 {
   "name": "UnofficialUniFiTalkSoftphone",
-  "version": "1.0.8",
+  "version": "1.0.10",
   "description": "Unofficial UniFi Talk Softphone.",
   "main": "dist/Electron.js",
   "author": {
-    "name": "Jan Heil"
+    "name": "Jan Heil / Thomas Schmidbaur"
   },
   "scripts": {
     "prestart": "tsc ./src/Electron.ts --outDir ./dist",
@@ -32,7 +32,7 @@
     "vite": "^7.2.2"
   },
   "build": {
-    "copyright": "Copyright © 2025 Jan Heil (www.byte-store.de)",
+    "copyright": "Copyright © 2025 Jan Heil (www.byte-store.de) and Thomas Schmidbaur (www.lautsound.de)",
     "files": [
       "dist/**/*",
       "build/*"
