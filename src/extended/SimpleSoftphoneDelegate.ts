@@ -18,6 +18,11 @@ export interface SimpleSoftphoneDelegate {
      * Callback for handling the creation of a new Session.
      */
     onCallCreated?(): void;
+    /**
+     * Called when call progress is reported
+     * (180 Ringing / 183 Session Progress).
+     */
+     onCallProgress?(): void;
 
     /**
      * Callback function that is invoked when a call is received.

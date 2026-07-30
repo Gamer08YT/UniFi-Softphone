@@ -13,6 +13,8 @@ export class Client {
     // Store User Instance.
     private simpleUser: SimpleSoftphone | undefined;
 
+    private muted = false;
+
     // Store Realm Hostname.
     private realm: string = "unifi";
     private callState: boolean = false;
@@ -161,6 +163,13 @@ export class Client {
 
         const options: SimpleUserOptions = {
             aor: this.getAOR(realm, username),
+		
+	    sendDTMFUsingSessionDescriptionHandler: true,
+
+	    reconnectionAttempts: 999999,
+
+	    reconnectionDelay: 4,
+
             media: {
                 constraints: {
                     audio: true,
@@ -190,14 +199,82 @@ export class Client {
 
         // Supply delegate to handle inbound calls (optional)
         this.simpleUser.delegate = {
-            onCallReceived: async (addr: NameAddrHeader) => {
-                this.handleIncoming(addr);
-            },
-            onCallAnswered: () => {
+onCallReceived: async (addr: NameAddrHeader) => {
+
+    const useUnifiPresence =
+        localStorage.getItem(
+            "useUnifiPresence"
+        ) === "true";
+
+    const availability =
+        localStorage.getItem(
+            "availability"
+        );
+
+if (
+    !useUnifiPresence &&
+    availability === "dnd"
+) {
+
+    return;
+}
+
+if (this.simpleUser.invitation) {
+
+
+}
+
+
+// @ts-ignore
+window.credentials
+    .incomingCallNotification(
+        addr.displayName ||
+        addr.uri.user ||
+        "Unbekannter Anrufer"
+    );
+
+
+this.handleIncoming(
+    addr
+);
+
+},
+
+
+	    onCallProgress: () => {
+		this.stopSound();            
+		this.playSound("outgoing.mp3");
+                
+	    },
+	    onCallAnswered: () => {
+
+  		  console.log(
+        		"Call answered"
+    			);
+
                 this.stopSound();
-            },
+
+    	        this.setCallState(
+                "connected"
+                );
+	    },
+
+	    onMessageReceived: (message: string) => {
+
+    	    console.log(
+               "MESSAGE RECEIVED:"
+    	    );
+
+    	    console.log(
+            message
+    	    );
+
+	    },
+
             onCallHangup: () => {
-                this.setCallState(null);
+            this.stopSound();
+            this.setCallState(null);
+
             },
             onServerConnect: () => {
                 this.setUIState(true);
@@ -251,19 +328,25 @@ export class Client {
      * @return {Promise<void>} A promise that resolves once the call operation is initiated.
      * @param dial
      */
-    public async call(dial: string): Promise<void> {
-        let number = this.getRealmNumber(dial);
+    	public async setAvailability(mode: string): Promise<void> {
+    	if (!this.simpleUser) {
+        return;
+    	}
 
-        // Play Dial Sound.
-        this.playSound("outgoing.mp3");
+    	if (mode === "dnd") {
+        await this.simpleUser.unregister();
+    	} else {
+        await this.simpleUser.register();
+    	}
+	}
+     public async call(dial: string): Promise<void> {
+        let number = this.getRealmNumber(dial);
 
         // Set Call State to true.
         this.setCallUIState(true);
 
         // Place call to the destination
-        await this.simpleUser?.call(number, {
-            inviteWithoutSdp: true
-        });
+        await this.simpleUser?.call(number); 
     }
 
     /**
@@ -352,6 +435,17 @@ export class Client {
     private setUIState(state: boolean): void {
         console.log(`Set UI State: ${state}`);
 
+	window.dispatchEvent(
+	    new CustomEvent(
+	        "sip-status",
+	        {
+	            detail: {
+	                online: state
+	            }
+	        }
+	    )
+	);
+
         // Disable Call Button if not connected.
         if (!state)
             document.getElementById("call")?.setAttribute("disabled", "disabled");
@@ -422,8 +516,97 @@ export class Client {
         // Stop Incoming Sound.
         this.stopSound();
 
-        await this.simpleUser?.answer({});
-    }
+
+try {
+
+
+console.log("=== PRE-MIC-TEST ===");
+
+try {
+
+    const start = performance.now();
+
+    const stream =
+        await navigator.mediaDevices.getUserMedia({
+            audio: true,
+            video: false
+        });
+
+    console.log(
+        "getUserMedia SUCCESS after",
+        performance.now() - start,
+        "ms"
+    );
+
+    stream.getTracks().forEach(track => {
+        track.stop();
+    });
+
+} catch(error) {
+
+    console.error(
+        "getUserMedia FAILED",
+        error
+    );
+
+}
+
+
+    await this.simpleUser?.answer();
+
+    console.log(
+        "answer() returned successfully"
+    );
+
+} catch (error) {
+
+    console.error(
+        "answer() failed:"
+    );
+
+    console.error(
+        error
+    );
+
+}
+}
+
+
+public async hold(): Promise<void> {
+
+    await this.simpleUser?.hold();
+
+}
+
+public async unhold(): Promise<void> {
+
+    await this.simpleUser?.unhold();
+
+}
+
+public mute(): void {
+
+    this.simpleUser?.mute();
+
+    this.muted =
+        true;
+
+}
+
+public unmute(): void {
+
+    this.simpleUser?.unmute();
+
+    this.muted =
+        false;
+
+}
+
+public isMuted(): boolean {
+
+    return this.muted;
+
+}
 
     /**
      * Declines the current action or request associated with the `simpleUser` object, if it exists.
@@ -532,4 +715,25 @@ export class Client {
         // Call Voicemail.
         this.call("*86")
     }
+
+	private addCallLog(type: string, number: string): void {
+
+    let logs = JSON.parse(localStorage.getItem("callLog") || "[]");
+
+    logs.unshift({
+        type: type,
+        number: number,
+        timestamp: new Date().toLocaleString()
+    });
+
+    logs = logs.slice(0, 50);
+
+    localStorage.setItem(
+        "callLog",
+        JSON.stringify(logs)
+    );
+
+    this.renderCallLog();
+}
+
 }

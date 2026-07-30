@@ -6,6 +6,7 @@ import { Message } from "sip.js/lib/api/message.js";
 import { RegistererRegisterOptions } from "sip.js/lib/api/registerer-register-options.js";
 import { RegistererUnregisterOptions } from "sip.js/lib/api/registerer-unregister-options.js";
 import { Session } from "sip.js/lib/api/session.js";
+import { Invitation } from "sip.js/lib/api/invitation.js";
 import {SimpleSoftphoneDelegate} from "./SimpleSoftphoneDelegate";
 import {SessionManager, SessionManagerOptions, SimpleUserOptions} from "sip.js/lib/platform/web";
 /**
@@ -24,6 +25,7 @@ export class SimpleSoftphone {
     private logger: Logger;
     private options: SimpleUserOptions;
     private session: Session | undefined = undefined;
+    private invitation: Invitation | undefined = undefined;
     private sessionManager: SessionManager;
 
     /**
@@ -42,14 +44,39 @@ export class SimpleSoftphone {
         // @ts-ignore
 
         const sessionManagerOptions: SessionManagerOptions = {
+
             aor: this.options.aor,
             delegate: {
+
                 onCallAnswered: () => this.delegate?.onCallAnswered?.(),
-                onCallCreated: (session: Session) => {
-                    this.session = session;
-                    this.delegate?.onCallCreated?.();
+		onCallCreated: (session: Session) => {
+    			this.session = session;
+
+			    this.delegate?.onCallCreated?.();
+		
                 },
-                onCallReceived: (session) => this.delegate?.onCallReceived?.(this.extractInviteCaller(session)),
+onCallReceived: (session) => {
+
+    this.session = session;
+    this.invitation = session as Invitation;
+
+console.log(
+    "Session methods:",
+    Object.getOwnPropertyNames(
+        Object.getPrototypeOf(session)
+    )
+);
+
+    console.log(
+        "Incoming session stored"
+    );
+
+    this.delegate?.onCallReceived?.(
+        this.extractInviteCaller(session)
+    );
+
+},
+
                 onCallHangup: () => {
                     this.session = undefined;
                     this.delegate?.onCallHangup && this.delegate?.onCallHangup();
@@ -62,7 +89,7 @@ export class SimpleSoftphone {
                 onServerConnect: () => this.delegate?.onServerConnect?.(),
                 onServerDisconnect: () => this.delegate?.onServerDisconnect?.()
             },
-            maxSimultaneousSessions: 1,
+            maxSimultaneousSessions: 2,
             media: this.options.media,
             reconnectionAttempts: this.options.reconnectionAttempts,
             reconnectionDelay: this.options.reconnectionDelay,
@@ -75,6 +102,16 @@ export class SimpleSoftphone {
 
         // Use the SIP.js logger
         this.logger = this.sessionManager.userAgent.getLogger("sip.SimpleUser");
+
+console.log(
+    "UserAgent methods:",
+    Object.getOwnPropertyNames(
+        Object.getPrototypeOf(
+            this.sessionManager.userAgent
+        )
+    )
+);
+
     }
 
     /**
@@ -195,9 +232,33 @@ export class SimpleSoftphone {
         if (this.session) {
             return Promise.reject(new Error("Session already exists."));
         }
-        return this.sessionManager.call(destination, inviterOptions, inviterInviteOptions).then(() => {
-            return;
-        });
+
+inviterInviteOptions = inviterInviteOptions || {};
+
+inviterInviteOptions.sessionDescriptionHandlerOptions = {
+    ...(inviterInviteOptions.sessionDescriptionHandlerOptions || {}),
+    iceGatheringTimeout: 500
+};
+
+inviterInviteOptions.requestDelegate =
+    inviterInviteOptions.requestDelegate || {};
+
+inviterInviteOptions.requestDelegate.onProgress = (response: any) => {
+
+    if (
+        response?.message?.statusCode === 180 ||
+        response?.message?.statusCode === 183
+    ) {
+        this.delegate?.onCallProgress?.();
+    }
+};
+
+return this.sessionManager
+    .call(destination, inviterOptions, inviterInviteOptions)
+    .then(() => {
+        return;
+    });
+
     }
 
     /**
@@ -230,7 +291,15 @@ export class SimpleSoftphone {
         if (!this.session) {
             return Promise.reject(new Error("Session does not exist."));
         }
-        return this.sessionManager.answer(this.session, invitationAcceptOptions);
+
+return this.sessionManager.answer(this.session, {
+    ...invitationAcceptOptions,
+    sessionDescriptionHandlerOptions: {
+        ...(invitationAcceptOptions?.sessionDescriptionHandlerOptions || {}),
+        iceGatheringTimeout: 500
+    }
+});
+
     }
 
     /**
@@ -248,46 +317,47 @@ export class SimpleSoftphone {
         return this.sessionManager.decline(this.session);
     }
 
-    /**
-     * Hold call
-     * @remarks
-     * Send a re-INVITE with new offer indicating "hold".
-     * Resolves when the re-INVITE request is sent, otherwise rejects.
-     * Use `onCallHold` delegate method to determine if request is accepted or rejected.
-     * See: https://tools.ietf.org/html/rfc6337
-     */
-    public hold(): Promise<void> {
-        this.logger.log(`[${this.id}] holding session...`);
-        if (!this.session) {
-            return Promise.reject(new Error("Session does not exist."));
+        /**
+         * Hold call
+         * @remarks
+         * Send a re-INVITE with new offer indicating "hold".
+         * Resolves when the re-INVITE request is sent, otherwise rejects.
+         * Use `onCallHold` delegate method to determine if request is accepted or rejected.
+         * See: https://tools.ietf.org/html/rfc6337
+         */
+        public hold(): Promise<void> {
+            this.logger.log(`[${this.id}] holding session...`);
+            if (!this.session) {
+                return Promise.reject(new Error("Session does not exist."));
+            }
+            return this.sessionManager.hold(this.session);
         }
-        return this.sessionManager.hold(this.session);
-    }
 
-    /**
-     * Unhold call.
-     * @remarks
-     * Send a re-INVITE with new offer indicating "unhold".
-     * Resolves when the re-INVITE request is sent, otherwise rejects.
-     * Use `onCallHold` delegate method to determine if request is accepted or rejected.
-     * See: https://tools.ietf.org/html/rfc6337
-     */
-    public unhold(): Promise<void> {
-        this.logger.log(`[${this.id}] unholding session...`);
-        if (!this.session) {
-            return Promise.reject(new Error("Session does not exist."));
+        /**
+         * Unhold call.
+         * @remarks
+         * Send a re-INVITE with new offer indicating "unhold".
+         * Resolves when the re-INVITE request is sent, otherwise rejects.
+         * Use `onCallHold` delegate method to determine if request is accepted or rejected.
+         * See: https://tools.ietf.org/html/rfc6337
+         */
+        public unhold(): Promise<void> {
+            this.logger.log(`[${this.id}] unholding session...`);
+            if (!this.session) {
+                return Promise.reject(new Error("Session does not exist."));
+            }
+            return this.sessionManager.unhold(this.session);
         }
-        return this.sessionManager.unhold(this.session);
-    }
 
-    /**
-     * Hold state.
-     * @remarks
-     * True if session is on hold.
-     */
-    public isHeld(): boolean {
-        return this.session ? this.sessionManager.isHeld(this.session) : false;
-    }
+        /**
+         * Hold state.
+         * @remarks
+         * True if session is on hold.
+         */
+
+        public isHeld(): boolean {
+            return this.session ? this.sessionManager.isHeld(this.session) : false;
+        }
 
     /**
      * Mute call.

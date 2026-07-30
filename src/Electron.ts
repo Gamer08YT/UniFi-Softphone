@@ -1,26 +1,29 @@
-import {app, BrowserWindow} from 'electron';
+
+import {
+    app,
+    BrowserWindow,
+    ipcMain,
+    Notification
+} from "electron"
+
+app.commandLine.appendSwitch(
+    "ignore-certificate-errors"
+);
+
 import * as path from "node:path";
+import * as keytar from "keytar";
 
 class Electron {
+    private readonly SERVICE =
+    "UnofficialUniFiTalkSoftphone";
+
     private windowInstance: BrowserWindow | null = null;
 
-    /**
-     * Constructor for initializing the main class instance. Sets up necessary functionality by
-     * registering listeners and configuring the taskbar.
-     *
-     * @return {void} This constructor does not return a value.
-     */
     constructor() {
         this.registerListeners();
         this.registerTaskbar();
     }
 
-    /**
-     * Creates and initializes a new browser window with specified configurations.
-     * The window will have a predefined size, minimum dimensions, and loading a specific HTML file.
-     *
-     * @return {void} Does not return a value.
-     */
     private createWindow(): void {
         this.windowInstance = new BrowserWindow({
             width: 1100,
@@ -30,52 +33,196 @@ class Electron {
             icon: path.join(__dirname, "../build/icon.png"),
             autoHideMenuBar: true,
             webPreferences: {
-                preload: path.join(__dirname, "preload.js"),
+		preload: path.join(__dirname, "../preload.js"),
                 devTools: true
-            },
+            }
         });
 
-        // Print Debug Message.
         console.log("Window Created");
 
-        // Load Page from Asar Archive.
-        this.windowInstance.loadFile("dist/index.html");
+	this.windowInstance.loadFile("dist/index.html");
     }
 
-    /**
-     * Registers event listeners for the application lifecycle.
-     * Handles application readiness, window activation, and behavior when all windows are closed.
-     *
-     * @return {void} Does not return a value.
-     */
     private registerListeners(): void {
+	ipcMain.handle(
+            "saveSipPassword",
+            async (_event, password: string) => {
+
+                await keytar.setPassword(
+                    this.SERVICE,
+                    "sipPassword",
+                    password
+                );
+
+                return true;
+            }
+        );
+
+        ipcMain.handle(
+            "getSipPassword",
+            async () => {
+
+                return await keytar.getPassword(
+                    this.SERVICE,
+                    "sipPassword"
+                );
+            }
+        );
+
+
+	ipcMain.handle(
+    	"saveUniFiPassword",
+    		async (_event, password: string) => {
+
+        	await keytar.setPassword(
+            	this.SERVICE,
+            	"unifiPassword",
+            	password
+        	);
+
+	        return true;
+    		}
+	);
+	
+	ipcMain.handle(
+    	"getUniFiPassword",
+    			async () => {
+
+        		return await keytar.getPassword(
+            		this.SERVICE,
+            		"unifiPassword"
+        		);
+    		}
+	);
+
+	ipcMain.handle(
+	    "incomingCallNotification",
+	    async (
+	        _event,
+	        caller: string
+	    ) => {
+
+	        const notification =
+	            new Notification({
+	                title: "Eingehender Anruf",
+	                body: caller
+	            });
+
+	        notification.on(
+	            "click",
+	            () => {
+
+       	        	 this.windowInstance?.show();
+        	        this.windowInstance?.focus();
+
+	            }
+        );
+
+        notification.show();
+
+        return true;
+
+    }
+);
+
+
+ipcMain.handle(
+    "testUniFiLogin",
+    async (
+        _event,
+        host: string,
+        username: string,
+        password: string
+    ) => {
+
+        try {
+
+            const response = await fetch(
+                `https://${host}/api/auth/login`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        username,
+                        password,
+                        token: "",
+                        rememberMe: false
+                    })
+                }
+            );
+
+            const text =
+                await response.text();
+
+            console.log(
+                "MAIN LOGIN STATUS:",
+                response.status
+            );
+
+            console.log(
+                "MAIN LOGIN RESPONSE:",
+                text
+            );
+
+            return {
+                status: response.status,
+                body: text
+            };
+
+        } catch (error) {
+
+            console.error(
+                "MAIN LOGIN ERROR:"
+            );
+
+            console.error(
+                error
+            );
+
+            throw error;
+        }
+    }
+);
+
         console.log("Registering Listeners");
 
         app.whenReady().then(() => {
-            // Change Temp Workdir.
-            //this.setWorkdir();
-
-            // Create Window.
             this.createWindow();
 
+	    if (
+	        Notification.isSupported()
+	    ) {
+
+	        console.log(
+	            "Notifications supported"
+	        );
+
+	    }
+
+
             app.on("activate", () => {
-                if (BrowserWindow.getAllWindows().length === 0) this.createWindow();
+                if (BrowserWindow.getAllWindows().length === 0) {
+                    this.createWindow();
+                }
             });
         });
 
         app.on("window-all-closed", () => {
-            if (process.platform !== "darwin") app.quit();
+            if (process.platform !== "darwin") {
+                app.quit();
+            }
         });
     }
 
-    /**
-     * Registers the taskbar with predefined user tasks for the application.
-     * This method sets up a user task for making a call using the specified arguments and icon.
-     *
-     * @return {void} Does not return any value.
-     */
     private registerTaskbar(): void {
         console.log("Registering Taskbar");
+
+        // Nur unter Windows verfügbar
+        if (process.platform !== "win32") {
+            return;
+        }
 
         app.setUserTasks([
             {
@@ -89,21 +236,10 @@ class Electron {
         ]);
     }
 
-    /**
-     * Sets the flash state of the current window instance.
-     *
-     * @param {boolean} state - A boolean value indicating whether to enable or disable the flash effect.
-     * @return {void} Does not return a value.
-     */
-    private setFlash(state: boolean) {
+    private setFlash(state: boolean): void {
         this.windowInstance?.flashFrame(state);
     }
 
-    /**
-     * Sets the current working directory to the "dist" folder located relative to the directory of the script.
-     *
-     * @return {void} This method does not return a value.
-     */
     private setWorkdir(): void {
         const workDir = path.join(__dirname);
 
@@ -113,5 +249,4 @@ class Electron {
     }
 }
 
-// Start the application.
 new Electron();
