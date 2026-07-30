@@ -567,6 +567,8 @@ document
 
             console.log(`Secure: ${secure}`);
 
+            console.log(`Secure: ${secure}`);
+
             const split = realm.split(":");
             let port = 5066;
 
